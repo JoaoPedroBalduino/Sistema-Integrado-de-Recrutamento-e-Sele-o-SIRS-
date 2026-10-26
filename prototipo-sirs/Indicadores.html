@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>SIRS · Indicadores</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+*{font-family:'Inter',system-ui,sans-serif;box-sizing:border-box}
+a{color:#4F46E5;text-decoration:none}
+a:hover{color:#4338CA;text-decoration:underline}
+.navlink{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:8px;color:#AEB9CF;font-size:14px;font-weight:500;text-decoration:none}
+.navlink:hover{background:#1C2740;color:#fff;text-decoration:none}
+.navlink.active{background:#4F46E5;color:#fff}
+.btn-secondary{background:#fff;color:#334155;border:1px solid #CBD5E1;padding:9px 16px;border-radius:8px;font-weight:600;font-size:13px;cursor:pointer}
+.btn-secondary:hover{background:#F1F5F9}
+.sel{border:1px solid #CBD5E1;border-radius:8px;padding:9px 12px;font-size:13px;color:#334155;background:#fff}
+th{text-align:left;color:#64748B;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;padding:0 12px 10px 0;border-bottom:1px solid #E2E8F0}
+td{padding:12px 12px 12px 0;border-bottom:1px solid #EEF1F5;font-size:14px;color:#1E293B}
+.ok{background:#DCFCE7;color:#15803D}
+.bad{background:#FEE2E2;color:#B91C1C}
+.chip{border-radius:999px;padding:3px 10px;font-size:12px;font-weight:700;display:inline-block}
+</style>
+</head>
+<body>
+<div style="display:flex;flex-wrap:wrap;min-height:100vh;background:#F7F8FA;color:#0F172A">
+
+  <div style="flex:0 0 260px;min-width:220px;background:#121826;min-height:100%;display:flex;flex-direction:column;padding:24px 16px;gap:4px">
+    <div style="display:flex;align-items:center;gap:10px;margin:4px 8px 24px 8px">
+      <div style="width:36px;height:36px;border-radius:10px;background:#4F46E5;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:15px">S</div>
+      <div style="font-weight:800;font-size:18px;color:#fff;letter-spacing:.02em">SIRS</div>
+    </div>
+    <a href="Main.html" class="navlink"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/></svg>Painel inicial</a>
+    <a href="Vagas.html" class="navlink"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 12h18"/></svg>Vagas</a>
+    <a href="Candidaturas.html" class="navlink"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3 2.5-5 6-5s6 2 6 5"/><circle cx="17" cy="9" r="2.3"/><path d="M15.5 20c.3-2 1.6-3.6 3.5-4"/></svg>Candidaturas</a>
+    <a href="Custos.html" class="navlink"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><line x1="12" y1="2" x2="12" y2="22"/><path d="M17 6.5c0-1.7-2-3-5-3s-5 1.3-5 3 2 2.6 5 3 5 1.3 5 3-2 3-5 3-5-1.3-5-3"/></svg>Custos</a>
+    <a href="Indicadores.html" class="navlink active"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><line x1="4" y1="20" x2="20" y2="20"/><rect x="6" y="12" width="3" height="8"/><rect x="11" y="7" width="3" height="13"/><rect x="16" y="3" width="3" height="17"/></svg>Indicadores</a>
+    <a href="Cadastros.html" class="navlink"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><line x1="8" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="20" y2="12"/><line x1="8" y1="18" x2="20" y2="18"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg>Cadastros</a>
+    <a href="Admin.html" class="navlink"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3l7 3v6c0 5-3.5 7.5-7 9-3.5-1.5-7-4-7-9V6l7-3z"/></svg>Administração</a>
+    <div style="margin-top:auto;padding:14px 10px;border-top:1px solid #253149;display:flex;align-items:center;gap:10px">
+      <div style="width:34px;height:34px;border-radius:999px;background:#2A3754;color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center">MC</div>
+      <div style="min-width:0"><div style="font-size:13px;font-weight:600;color:#fff">Marina Costa</div><div style="font-size:12px;color:#8C98B4">Recrutadora</div></div>
+    </div>
+  </div>
+
+  <div style="flex:999 1 560px;min-width:0;display:flex;flex-direction:column">
+    <div style="flex:0 0 72px;background:#fff;border-bottom:1px solid #E2E8F0;display:flex;align-items:center;justify-content:space-between;padding:0 32px;flex-wrap:wrap;gap:12px">
+      <div><div style="font-size:19px;font-weight:700">Indicadores e dashboards</div><div style="font-size:13px;color:#64748B">Recrutamento e seleção · metas vigentes no período (RN-25)</div></div>
+      <div style="display:flex;gap:10px;align-items:center">
+        <select class="sel"><option>De: 01/09/2026</option></select>
+        <select class="sel"><option>Até: 30/09/2026</option></select>
+        <button class="btn-secondary">Histórico mensal</button>
+      </div>
+    </div>
+
+    <div style="padding:28px 32px;display:flex;flex-direction:column;gap:22px">
+
+      <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px">
+        <div style="background:#fff;border:1px solid #E2E8F0;border-radius:12px;padding:18px">
+          <div style="font-size:12px;font-weight:600;color:#64748B;text-transform:uppercase">Tempo de fechamento</div>
+          <div style="font-size:28px;font-weight:800;margin-top:6px">7,5 h</div>
+          <div class="chip bad" style="margin-top:6px">meta 4 h/vaga</div>
+          <div style="font-size:12px;color:#94A3B8;margin-top:8px">30h apontadas ÷ 4 vagas fechadas (RN-12)</div>
+        </div>
+        <div style="background:#fff;border:1px solid #E2E8F0;border-radius:12px;padding:18px">
+          <div style="font-size:12px;font-weight:600;color:#64748B;text-transform:uppercase">Vagas no prazo</div>
+          <div style="font-size:28px;font-weight:800;margin-top:6px">66,7%</div>
+          <div class="chip bad" style="margin-top:6px">meta 90%</div>
+          <div style="font-size:12px;color:#94A3B8;margin-top:8px">5 em atraso de 15 vagas abertas (RN-13)</div>
+        </div>
+        <div style="background:#fff;border:1px solid #E2E8F0;border-radius:12px;padding:18px">
+          <div style="font-size:12px;font-weight:600;color:#64748B;text-transform:uppercase">Custo por vaga fechada</div>
+          <div style="font-size:28px;font-weight:800;margin-top:6px">R$ 2.857</div>
+          <div class="chip bad" style="margin-top:6px">meta R$ 2.000</div>
+          <div style="font-size:12px;color:#94A3B8;margin-top:8px">R$ 20.000 ÷ 7 vagas fechadas (RN-14)</div>
+        </div>
+        <div style="background:#fff;border:1px solid #E2E8F0;border-radius:12px;padding:18px">
+          <div style="font-size:12px;font-weight:600;color:#64748B;text-transform:uppercase">Tempo para admissão</div>
+          <div style="font-size:28px;font-weight:800;margin-top:6px">25 dias</div>
+          <div class="chip" style="margin-top:6px;background:#F1F5F9;color:#475569">sem meta definida</div>
+          <div style="font-size:12px;color:#94A3B8;margin-top:8px">abertura → aceite da proposta (RN-20)</div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:20px;flex-wrap:wrap">
+        <div style="flex:1 1 440px;min-width:340px;background:#fff;border:1px solid #E2E8F0;border-radius:12px;padding:20px">
+          <div style="font-size:15px;font-weight:700;margin-bottom:12px">Por cargo (RF-IND-01)</div>
+          <table style="width:100%">
+            <tr><th>Cargo</th><th>Posições abertas</th><th>Candidatos</th><th>Dias aberto (média)</th><th>Investim. médio</th></tr>
+            <tr><td><strong>Analista</strong></td><td>2</td><td>138</td><td>19</td><td>R$ 817,50</td></tr>
+            <tr><td>Desenvolvedor(a)</td><td>3</td><td>24</td><td>18</td><td>R$ 10,00</td></tr>
+            <tr><td>Designer(a)</td><td>1</td><td>0</td><td>—</td><td>—</td></tr>
+          </table>
+        </div>
+        <div style="flex:1 1 440px;min-width:340px;background:#fff;border:1px solid #E2E8F0;border-radius:12px;padding:20px">
+          <div style="font-size:15px;font-weight:700;margin-bottom:12px">Por recrutador(a) (RF-IND-02, RN-08)</div>
+          <table style="width:100%">
+            <tr><th>Recrutador(a)</th><th>Posições trabalhadas</th><th>Preenchidas</th><th>Taxa de fechamento</th></tr>
+            <tr><td>Marina Costa</td><td>2</td><td>2</td><td><span class="chip ok">100%</span></td></tr>
+            <tr><td>Jéssica Oliveira</td><td>3</td><td>2</td><td><span class="chip bad">66,7%</span></td></tr>
+            <tr><td>Joice Lima</td><td>1</td><td>0</td><td><span class="chip" style="background:#F1F5F9;color:#475569">0%</span></td></tr>
+          </table>
+          <div style="font-size:12px;color:#94A3B8;margin-top:10px">Joice: vaga Congelada — segue na base, sem posição preenchida.</div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:20px;flex-wrap:wrap">
+        <div style="flex:1 1 440px;min-width:340px;background:#fff;border:1px solid #E2E8F0;border-radius:12px;padding:20px">
+          <div style="font-size:15px;font-weight:700;margin-bottom:12px">Conversão por canal (RF-IND-08, RN-19)</div>
+          <table style="width:100%">
+            <tr><th>Canal</th><th>Visitas</th><th>Contratações</th><th>Taxa do canal</th><th>Taxa geral</th></tr>
+            <tr><td>LinkedIn</td><td>150</td><td>25</td><td><strong>16,7%</strong></td><td>10,7%</td></tr>
+            <tr><td>Portal de carreiras</td><td>61</td><td>5</td><td><strong>8,2%</strong></td><td>2,1%</td></tr>
+            <tr><td>Grupos / universidades</td><td>22</td><td>1</td><td><strong>4,5%</strong></td><td>0,4%</td></tr>
+            <tr><td style="color:#64748B">Total</td><td style="color:#64748B">233</td><td style="color:#64748B">31</td><td></td><td></td></tr>
+          </table>
+        </div>
+        <div style="flex:1 1 440px;min-width:340px;background:#fff;border:1px solid #E2E8F0;border-radius:12px;padding:20px">
+          <div style="font-size:15px;font-weight:700;margin-bottom:12px">Histórico mensal · tempo de fechamento vs. meta</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span>Jun/2026</span><span>3,8 h <span style="color:#15803D">(meta 4h)</span></span></div><div style="height:9px;border-radius:5px;background:#E2E8F0"><div style="height:100%;width:38%;background:#16A34A;border-radius:5px"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span>Jul/2026</span><span>4,6 h <span style="color:#B91C1C">(meta 4h)</span></span></div><div style="height:9px;border-radius:5px;background:#E2E8F0"><div style="height:100%;width:46%;background:#DC2626;border-radius:5px"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span>Ago/2026</span><span>5,1 h <span style="color:#B91C1C">(meta 4h)</span></span></div><div style="height:9px;border-radius:5px;background:#E2E8F0"><div style="height:100%;width:51%;background:#DC2626;border-radius:5px"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span>Set/2026 (atual)</span><span>7,5 h <span style="color:#B91C1C">(meta 4h)</span></span></div><div style="height:9px;border-radius:5px;background:#E2E8F0"><div style="height:100%;width:75%;background:#DC2626;border-radius:5px"></div></div></div>
+          </div>
+          <div style="font-size:12px;color:#94A3B8;margin-top:12px">Meta vigente no período selecionado, com histórico comparado à meta de cada mês (RN-25).</div>
+        </div>
+      </div>
+
+      <div style="background:#fff;border:1px solid #E2E8F0;border-radius:12px;padding:20px">
+        <div style="font-size:15px;font-weight:700;margin-bottom:12px">Admissões recentes (RF-IND-09, RN-20)</div>
+        <table style="width:100%">
+          <tr><th>Vaga</th><th>Candidato</th><th>Abertura</th><th>Aceite da proposta</th><th>Tempo para admissão</th></tr>
+          <tr><td>Analista de RH</td><td>Patrícia Nunes</td><td>21/01/2026</td><td>15/02/2026</td><td><strong>25 dias</strong></td></tr>
+          <tr><td>Analista de Marketing</td><td>Renato Dias</td><td>03/08/2026</td><td>25/08/2026</td><td><strong>22 dias</strong></td></tr>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</div>
+</body>
+</html>

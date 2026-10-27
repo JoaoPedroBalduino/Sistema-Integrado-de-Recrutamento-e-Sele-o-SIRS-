@@ -41,7 +41,7 @@ O administrador inicial e criado apenas quando `ADMIN_EMAIL` esta preenchido e a
 
 ## Executar diretamente no Windows
 
-Requisitos: JDK 17 ou superior e PostgreSQL. O Maven Wrapper ja acompanha o projeto. Um arquivo `.env` nao e carregado automaticamente ao executar Java fora do Compose.
+Requisitos: JDK 17 ou superior e PostgreSQL. O Maven Wrapper ja acompanha o projeto. O arquivo `.env` é carregado automaticamente do diretório de execução ou de `backend-sirs/.env`. Variáveis do processo e argumentos de execução têm prioridade; o perfil é escolhido explicitamente na inicialização.
 
 ```powershell
 $env:DB_URL = 'jdbc:postgresql://localhost:5432/sirs'
@@ -55,6 +55,86 @@ $env:ADMIN_PASSWORD = Read-Host 'Senha inicial do administrador'
 
 No Linux/macOS, exporte as mesmas variaveis e use `./mvnw`. Mantenha a chave JWT estavel entre reinicializacoes se os tokens emitidos precisarem continuar validos. Em implantacao, configure as origens reais em `CORS_ORIGINS`, HTTPS no ponto de entrada e `API_DOCS_ENABLED=false` quando a documentacao nao deva estar publicada.
 
+## Supabase: PostgreSQL e Auth
+
+O perfil `supabase` usa **PostgreSQL hospedado e Supabase Auth**. O perfil padrão continua
+local para desenvolvimento. A autorização dos seis perfis permanece no banco do SIRS;
+campos de `user_metadata` nunca concedem privilégios.
+
+### Configuração privada
+
+As credenciais reais ficam somente em `backend-sirs/.env`, ignorado pelo Git e pelo contexto
+Docker. O `.env.example` é apenas um modelo, sem chave JWT ou credenciais reais.
+
+Preencha no `.env`:
+
+| Variável | Finalidade |
+|---|---|
+| `SUPABASE_URL` | URL HTTPS do projeto |
+| `SUPABASE_PUBLISHABLE_KEY` | Chave usada no login e na renovação |
+| `SUPABASE_SECRET_KEY` | Chave privada, exclusivamente para administração server-side |
+| `SUPABASE_JWKS_URL` | URL do projeto seguida de `/auth/v1/.well-known/jwks.json` |
+| `SUPABASE_DB_URL` | JDBC do **Session pooler na porta 5432**, ou conexão direta |
+| `SUPABASE_DB_USERNAME` | Usuário PostgreSQL informado no diálogo Connect |
+| `SUPABASE_DB_PASSWORD` | Senha do banco; não é a chave de API |
+| `JWT_SECRET` | Chave independente do modo local do SIRS |
+| `ADMIN_EMAIL` / `ADMIN_PASSWORD` | Administrador inicial a criar ou vincular no Supabase Auth |
+
+Em **Connect → Session pooler → JDBC**, copie host, porta e banco. Monte a URL no formato
+`jdbc:postgresql://HOST_DO_POOLER:5432/postgres`, sem `user` ou `password` na URL, e informe
+essas credenciais nos campos separados. A configuração exige SSL e rejeita o Transaction
+pooler 6543. Se a senha tiver caracteres especiais, use aspas no `.env`.
+
+`JWT_SECRET` deve ser gerada com um gerador criptográfico e mantida estável no arquivo
+privado. Ela **não substitui** as chaves de assinatura do projeto Supabase. No perfil
+Supabase os access tokens são verificados por JWKS, com ES256/RS256, emissor do próprio
+projeto, audiência `authenticated` e vínculo com a conta interna.
+
+### Inicialização
+
+Na pasta `backend-sirs`, execute:
+
+```powershell
+.\mvnw.cmd spring-boot:run "-Dspring-boot.run.profiles=supabase"
+```
+
+Ou use o Compose próprio, sem subir outro PostgreSQL:
+
+```powershell
+docker compose -f compose.supabase.yaml up --build -d
+```
+
+O perfil cria o schema privado **`sirs`**, com Flyway, Hibernate `validate` e o mesmo
+`search_path` nas consultas JDBC. As tabelas não são expostas pela Data API. A migration
+restrita ao perfil remove permissões de `PUBLIC`, `anon`, `authenticated` e `service_role`
+sobre esse schema. Não adicione `sirs` aos schemas expostos no painel. Dados de outro banco
+ou do schema `public` não são movidos automaticamente.
+
+### Contas e sessões
+
+1. Habilite o provedor de e-mail/senha e uma chave assimétrica de assinatura no Supabase Auth.
+2. Preencha `ADMIN_EMAIL` e `ADMIN_PASSWORD` para inicializar o administrador. Se a conta já
+   existir no Supabase, informe sua senha atual; o backend verifica a identidade antes de vincular.
+3. O administrador cria contas em `POST /api/v1/usuarios`. São contas internas confirmadas;
+   não há cadastro público. A senha é administrada pelo Supabase e não é duplicada no hash local.
+4. Para migrar uma conta existente, um administrador usa `PUT /api/v1/usuarios/{identificador}/supabase`
+   com `usuarioSupabaseId`. O e-mail remoto deve coincidir com o cadastro SIRS.
+5. O frontend usa `POST /api/v1/auth/login` do SIRS e recebe `accessToken`, `refreshToken`,
+   `expiresAt` e o perfil interno. A sessão precisa ser registrada por esse login antes de
+   acessar a API; um JWT obtido diretamente por outro cliente não cria uma sessão interna.
+6. Renove em `POST /api/v1/auth/refresh` e substitua o refresh token pelo novo valor retornado.
+   Logout, troca de senha, bloqueio e mudança de perfil revogam as sessões registradas,
+   inclusive tokens posteriormente renovados da mesma sessão.
+
+A chave administrativa não é devolvida aos clientes nem usada para chamadas públicas.
+No logout, a revogação local é imediata; o backend também solicita logout global ao Supabase.
+Se o provedor estiver indisponível, a API do SIRS continua rejeitando as sessões já revogadas.
+
+Testes usam somente credenciais fictícias e provedores HTTP/JWKS locais ou simulados;
+nenhuma conta real é criada pela suíte. Referências: [Spring Boot + Supabase](https://supabase.com/docs/guides/getting-started/quickstarts/spring-boot),
+[conexões PostgreSQL](https://supabase.com/docs/guides/database/connecting-to-postgres) e
+[chaves de API](https://supabase.com/docs/guides/api/api-keys).
+
 ## Swagger / OpenAPI
 
 A documentação interativa está disponível em `http://localhost:8080/swagger-ui.html`
@@ -63,7 +143,7 @@ A documentação interativa está disponível em `http://localhost:8080/swagger-
 - JSON: `http://localhost:8080/v3/api-docs`
 - YAML: `http://localhost:8080/v3/api-docs.yaml`
 
-A interface organiza as **59 operações em 13 módulos**, com descrições das regras,
+A interface organiza as **61 operações em 13 módulos**, com descrições das regras,
 parâmetros de paginação, formatos de entrada, códigos HTTP e erros padronizados.
 Apenas as rotas `/api/v1/**` entram na especificação; endpoints internos de monitoramento
 não são publicados como operações de negócio.
@@ -96,9 +176,9 @@ Content-Type: application/json
 {"email":"administrador@example.com","senha":"SENHA_CONFIGURADA_NO_AMBIENTE"}
 ```
 
-Use o campo `accessToken` como `Authorization: Bearer TOKEN` nas demais chamadas. Tokens duram 30 minutos. Cinco falhas consecutivas bloqueiam a conta. O administrador pode desbloquear pelo cadastro de usuarios. Desativacao, alteracao de perfil, troca de senha e logout invalidam imediatamente os tokens anteriores; o logout encerra todas as sessoes da conta.
+Use o campo `accessToken` como `Authorization: Bearer TOKEN` nas demais chamadas. No perfil local, tokens duram 30 minutos. No perfil `supabase`, os tokens e a renovação são fornecidos pelo Supabase Auth. Cinco falhas consecutivas bloqueiam a conta. O administrador pode desbloquear pelo cadastro de usuarios. Desativacao, alteracao de perfil, troca de senha e logout invalidam imediatamente os tokens anteriores; o logout encerra todas as sessoes da conta.
 
-`GET /auth/me` consulta o usuario autenticado; `PUT /auth/senha` recebe `senhaAtual` e `novaSenha`. Apenas login, saude e documentacao sao publicos.
+`POST /auth/refresh` renova sessões Supabase com `refreshToken` no corpo, sem enviar um Authorization expirado. `GET /auth/me` consulta o usuario autenticado; `PUT /auth/senha` recebe `senhaAtual` e `novaSenha`. Login, renovação de sessão, saúde e documentação são públicos.
 
 ## Rotas principais
 
@@ -106,7 +186,7 @@ Todas as rotas abaixo usam o prefixo `/api/v1`. Os contratos completos e campos 
 
 | Modulo | Rotas |
 |---|---|
-| Usuarios | `GET/POST /usuarios`, `PUT /usuarios/{identificador}` |
+| Usuarios | `GET/POST /usuarios`, `PUT /usuarios/{identificador}`, `PUT /usuarios/{identificador}/supabase` |
 | Cadastros | `GET/POST /cadastros/{areas,cargos,canais}`, `PUT /cadastros/{tipo}/{identificador}` |
 | Responsaveis | `GET /cadastros/recrutadores`, `GET /cadastros/solicitantes` |
 | Vagas | `GET/POST /vagas`, `GET/PUT /vagas/{identificador}`, `PATCH /vagas/{identificador}/status` |
@@ -173,7 +253,7 @@ Etapas, criterios e dados estruturais da vaga sao editaveis em rascunho; depois 
 
 ## Migrations
 
-A migration `V1__schema_inicial.sql` foi preservada. `V2` acrescenta versoes, integridade, indices, datas e solicitacoes de titular. `V3` cadastra parametros de referencia e metas, sem usuarios nem segredos. O Flyway executa as migrations e o Hibernate apenas valida o esquema (`ddl-auto=validate`).
+A migration `V1__schema_inicial.sql` foi preservada. `V2` acrescenta versoes, integridade, indices, datas e solicitacoes de titular. `V3` cadastra parametros de referencia e metas, sem usuarios nem segredos. `V4` vincula identidades UUID e sessões do Supabase; `V5`, exclusiva do perfil Supabase, restringe o schema privado. O Flyway executa as migrations e o Hibernate apenas valida o esquema (`ddl-auto=validate`).
 
 ## Testes e padronizacao
 

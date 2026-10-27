@@ -1,0 +1,27 @@
+services:
+  backend:
+    build: .
+    ports:
+      - "127.0.0.1:${PORT:-8080}:8080"
+    environment:
+      PORT: 8080
+      SPRING_PROFILES_ACTIVE: supabase
+      ENV_FILE_ENABLED: "false"
+      SUPABASE_URL: ${SUPABASE_URL:?Preencha SUPABASE_URL no .env}
+      SUPABASE_PUBLISHABLE_KEY: ${SUPABASE_PUBLISHABLE_KEY:?Preencha a chave publica no .env}
+      SUPABASE_SECRET_KEY: ${SUPABASE_SECRET_KEY:?Preencha a chave privada no .env}
+      SUPABASE_JWKS_URL: ${SUPABASE_JWKS_URL:?Preencha o endpoint JWKS no .env}
+      SUPABASE_DB_URL: ${SUPABASE_DB_URL:?Preencha a URL JDBC do banco no .env}
+      SUPABASE_DB_USERNAME: ${SUPABASE_DB_USERNAME:?Preencha o usuario PostgreSQL no .env}
+      SUPABASE_DB_PASSWORD: ${SUPABASE_DB_PASSWORD:?Preencha a senha PostgreSQL no .env}
+      DB_POOL_SIZE: ${DB_POOL_SIZE:-5}
+      JWT_SECRET: ${JWT_SECRET:?Gere a chave JWT somente no .env}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173}
+      API_DOCS_ENABLED: ${API_DOCS_ENABLED:-true}
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+    restart: unless-stopped

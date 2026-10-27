@@ -1,24 +1,63 @@
+# Credenciais e configuracoes locais
+.env
+.env.*
+!**/.env.example
+application-local.*
+application-secrets.*
+application-*.local.*
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+
+# Compilacao, dependencias e relatorios gerados
+target/
+build/
+dist/
+node_modules/
+coverage/
+.gradle/
+.cache/
+*.class
+*.jar
+*.war
+*.ear
+
+# Execucao local, evidencias e bancos temporarios
+.backend-evidence/
+pgdata/
+.pgdata/
+logs/
+*.log
+*.pid
+*.pid.lock
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*~
+
 # IDEs e editores
 .idea/
+.vscode/
+.settings/
+.classpath
+.project
+.factorypath
+.apt_generated/
+.springBeans
+.sts4-cache/
+nbproject/private/
 *.iml
 *.ipr
 *.iws
-.vscode/
-.classpath
-.project
-.settings/
 
 # Sistema operacional
 .DS_Store
 Thumbs.db
+Desktop.ini
 
-# Segredos e configuracao local (nunca versionar)
-.env
-.env.*
-application-local.properties
-application-secrets.properties
-*.pem
-*.key
-
-# Exportacao em bundle do prototipo (arquivo grande e duplicado; a versao oficial fica em prototipo-sirs/)
+# Exportacao duplicada do prototipo; os HTML oficiais ficam em prototipo-sirs/
 SIRS - Prototipo MVP.html

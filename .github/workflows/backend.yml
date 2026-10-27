@@ -9,6 +9,15 @@ permissions:
 jobs:
   verificar:
     runs-on: ubuntu-latest
+    name: Verificar backend (${{ matrix.nome }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - nome: utc
+            fuso: UTC
+          - nome: sao-paulo
+            fuso: America/Sao_Paulo
     services:
       postgres:
         image: postgres:18-alpine
@@ -21,6 +30,8 @@ jobs:
           --health-cmd "pg_isready -U sirs_test -d sirs_test"
           --health-interval 5s --health-timeout 5s --health-retries 10
     env:
+      TZ: ${{ matrix.fuso }}
+      JAVA_TOOL_OPTIONS: -Duser.timezone=${{ matrix.fuso }}
       SIRS_TEST_DB_URL: jdbc:postgresql://localhost:5432/sirs_test
       SIRS_TEST_DB_USERNAME: sirs_test
       SIRS_TEST_DB_PASSWORD: senha-exclusiva-ci
@@ -41,7 +52,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: resultados-backend
+          name: resultados-backend-${{ matrix.nome }}
           path: |
             backend-sirs/target/surefire-reports/
             backend-sirs/target/failsafe-reports/

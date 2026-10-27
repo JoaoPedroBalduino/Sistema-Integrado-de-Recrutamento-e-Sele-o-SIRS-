@@ -1,29 +1,158 @@
 package br.com.sirs.api.config;
 
-import io.swagger.v3.oas.annotations.*;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Info;
-import io.swagger.v3.oas.annotations.security.*;
-import java.time.Clock;
-import java.time.ZoneId;
-import org.springframework.context.annotation.*;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.PathItem;
+import io.swagger.v3.oas.models.headers.Header;
+import io.swagger.v3.oas.models.media.Content;
+import io.swagger.v3.oas.models.media.IntegerSchema;
+import io.swagger.v3.oas.models.media.MapSchema;
+import io.swagger.v3.oas.models.media.MediaType;
+import io.swagger.v3.oas.models.media.ObjectSchema;
+import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.media.StringSchema;
+import io.swagger.v3.oas.models.responses.ApiResponse;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
+import org.springdoc.core.customizers.OpenApiCustomizer;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 @OpenAPIDefinition(
     info =
         @Info(
             title = "SIRS API",
             version = "v1",
-            description = "Recrutamento, selecao e indicadores"),
+            description =
+                """
+        Sistema Integrado de Recrutamento e Seleção.
+
+        Para testar operações protegidas, execute POST /api/v1/auth/login e copie o accessToken.
+        Clique em Authorize e informe somente o token, sem o prefixo Bearer.
+        As permissões são verificadas por perfil, vaga responsável e designação de avaliador.
+        Tokens expiram em 30 minutos; logout, troca de senha e alterações de acesso revogam as sessões.
+        """),
     security = @SecurityRequirement(name = "bearerAuth"))
 @SecurityScheme(
     name = "bearerAuth",
     type = SecuritySchemeType.HTTP,
     scheme = "bearer",
-    bearerFormat = "JWT")
+    bearerFormat = "JWT",
+    description = "Token emitido pelo login. Informe somente o accessToken no botão Authorize.")
 @Configuration
 public class ConfiguracaoDocumentacao {
   @Bean
-  Clock relogio() {
-    return Clock.system(ZoneId.of("America/Sao_Paulo"));
+  OpenApiCustomizer documentarContratosComuns() {
+    return documentacao -> {
+      if (documentacao.getComponents() == null) documentacao.setComponents(new Components());
+      var componentes = documentacao.getComponents();
+      componentes.addSchemas(
+          "DetalheErro",
+          new ObjectSchema()
+              .description(
+                  "Erro HTTP padronizado. O requestId também é enviado no cabeçalho X-Request-Id.")
+              .addProperty("type", new StringSchema().format("uri").example("about:blank"))
+              .addProperty("title", new StringSchema().example("Unprocessable Entity"))
+              .addProperty(
+                  "status",
+                  new IntegerSchema().minimum(new BigDecimal("400")).maximum(new BigDecimal("599")))
+              .addProperty("detail", new StringSchema().example("Transição de vaga inválida."))
+              .addProperty("instance", new StringSchema().format("uri"))
+              .addProperty("requestId", new StringSchema().format("uuid"))
+              .addProperty("errors", new MapSchema().additionalProperties(new StringSchema())));
+      Map<String, String> erros =
+          Map.of(
+              "RequisicaoInvalida",
+                  "Parâmetros, campos ou tipos inválidos; errors detalha os campos quando aplicável.",
+              "NaoAutenticado",
+                  "Token ausente, inválido, expirado ou revogado; no login, credenciais inválidas ou conta indisponível.",
+              "AcessoNegado",
+                  "O perfil ou a responsabilidade sobre o recurso não permite esta operação.",
+              "RecursoNaoEncontrado", "O recurso solicitado não foi encontrado.",
+              "ConflitoDados",
+                  "Conflito de unicidade ou alteração concorrente. Consulte o estado atual antes de repetir.",
+              "RegraNegocio", "A operação viola uma regra do processo de recrutamento.",
+              "ErroInterno", "Erro interno. Informe o X-Request-Id ao suporte.");
+      erros.forEach((nome, descricao) -> componentes.addResponses(nome, respostaErro(descricao)));
+      if (documentacao.getPaths() == null) return;
+      documentacao
+          .getPaths()
+          .forEach(
+              (caminho, item) ->
+                  item.readOperationsMap()
+                      .forEach(
+                          (metodo, operacao) -> {
+                            var respostas = operacao.getResponses();
+                            respostas.putIfAbsent("400", referenciaErro("RequisicaoInvalida"));
+                            respostas.putIfAbsent("401", referenciaErro("NaoAutenticado"));
+                            boolean login =
+                                caminho.equals("/api/v1/auth/login")
+                                    && metodo == PathItem.HttpMethod.POST;
+                            if (login) operacao.setSecurity(List.of());
+                            else respostas.putIfAbsent("403", referenciaErro("AcessoNegado"));
+                            if (caminho.contains("{"))
+                              respostas.putIfAbsent("404", referenciaErro("RecursoNaoEncontrado"));
+                            if (metodo != PathItem.HttpMethod.GET) {
+                              respostas.putIfAbsent("409", referenciaErro("ConflitoDados"));
+                              respostas.putIfAbsent("422", referenciaErro("RegraNegocio"));
+                            }
+                            respostas.putIfAbsent("500", referenciaErro("ErroInterno"));
+                            respostas.forEach(
+                                (codigo, resposta) -> {
+                                  if (resposta.get$ref() == null)
+                                    resposta.addHeaderObject(
+                                        "X-Request-Id", cabecalhoRastreabilidade());
+                                });
+                            if (operacao.getParameters() != null)
+                              operacao
+                                  .getParameters()
+                                  .forEach(
+                                      parametro -> {
+                                        if (parametro.getName().equals("page")) {
+                                          parametro.setDescription("Página iniciada em zero.");
+                                          if (parametro.getSchema() != null)
+                                            parametro.getSchema().setMinimum(BigDecimal.ZERO);
+                                        }
+                                        if (parametro.getName().equals("size")) {
+                                          parametro.setDescription(
+                                              "Quantidade por página, limitada a 100 registros.");
+                                          if (parametro.getSchema() != null) {
+                                            parametro.getSchema().setMinimum(BigDecimal.ONE);
+                                            parametro.getSchema().setMaximum(new BigDecimal("100"));
+                                          }
+                                        }
+                                        if (parametro.getName().equals("sort"))
+                                          parametro.setDescription(
+                                              "Ordenação no formato campo,asc ou campo,desc. Use somente os campos permitidos pelo recurso.");
+                                      });
+                          }));
+    };
+  }
+
+  private ApiResponse referenciaErro(String nome) {
+    return new ApiResponse().$ref("#/components/responses/" + nome);
+  }
+
+  private ApiResponse respostaErro(String descricao) {
+    return new ApiResponse()
+        .description(descricao)
+        .addHeaderObject("X-Request-Id", cabecalhoRastreabilidade())
+        .content(
+            new Content()
+                .addMediaType(
+                    "application/problem+json",
+                    new MediaType()
+                        .schema(new Schema<>().$ref("#/components/schemas/DetalheErro"))));
+  }
+
+  private Header cabecalhoRastreabilidade() {
+    return new Header()
+        .description("Identificador desta requisição para rastreamento e suporte.")
+        .schema(new StringSchema().format("uuid"));
   }
 }

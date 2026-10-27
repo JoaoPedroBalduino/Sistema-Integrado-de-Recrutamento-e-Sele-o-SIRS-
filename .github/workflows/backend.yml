@@ -1,0 +1,48 @@
+name: Backend SIRS
+on:
+  push:
+    paths: ['backend-sirs/**', '.github/workflows/backend.yml']
+  pull_request:
+    paths: ['backend-sirs/**', '.github/workflows/backend.yml']
+permissions:
+  contents: read
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_DB: sirs_test
+          POSTGRES_USER: sirs_test
+          POSTGRES_PASSWORD: senha-exclusiva-ci
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U sirs_test -d sirs_test"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      SIRS_TEST_DB_URL: jdbc:postgresql://localhost:5432/sirs_test
+      SIRS_TEST_DB_USERNAME: sirs_test
+      SIRS_TEST_DB_PASSWORD: senha-exclusiva-ci
+    defaults:
+      run:
+        working-directory: backend-sirs
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+          cache-dependency-path: backend-sirs/pom.xml
+      - name: Validar backend
+        run: chmod +x mvnw && ./mvnw -B clean verify
+      - name: Publicar resultados dos testes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: resultados-backend
+          path: |
+            backend-sirs/target/surefire-reports/
+            backend-sirs/target/failsafe-reports/
+            backend-sirs/target/site/jacoco/

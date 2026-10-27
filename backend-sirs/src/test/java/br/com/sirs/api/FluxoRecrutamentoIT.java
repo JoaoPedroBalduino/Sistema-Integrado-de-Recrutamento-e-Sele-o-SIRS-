@@ -36,6 +36,7 @@ class FluxoRecrutamentoIT {
   @Autowired private JdbcTemplate bancoDados;
   @Autowired private JsonMapper conversorJson;
   @Autowired private AgendadorRetencao retencao;
+  @Autowired private Clock relogio;
   private String administrador;
   private String coordenador;
   private String recrutador;
@@ -200,7 +201,7 @@ class FluxoRecrutamentoIT {
                 "baseLegal",
                 "CONSENTIMENTO",
                 "dataColeta",
-                Instant.now().minusSeconds(30).toString(),
+                Instant.now(relogio).minusSeconds(30).toString(),
                 "versaoConsentimento",
                 "1.2",
                 "curriculoUrl",
@@ -235,11 +236,7 @@ class FluxoRecrutamentoIT {
     executar(
         post("/api/v1/candidaturas/" + candidaturaId + "/proposta"),
         coordenador,
-        Map.of(
-            "salarioOfertado",
-            4000,
-            "dataProposta",
-            LocalDate.now(ZoneId.of("America/Sao_Paulo")).toString()),
+        Map.of("salarioOfertado", 4000, "dataProposta", LocalDate.now(relogio).toString()),
         201);
   }
 
@@ -276,7 +273,7 @@ class FluxoRecrutamentoIT {
     executar(
         post("/api/v1/vagas/" + vaga.identificador() + "/horas"),
         recrutador,
-        Map.of("data", LocalDate.now().toString(), "horas", 8.5, "atividade", "Entrevistas"),
+        Map.of("data", LocalDate.now(relogio).toString(), "horas", 8.5, "atividade", "Entrevistas"),
         201);
     var custo =
         executar(get("/api/v1/vagas/" + vaga.identificador() + "/custos"), coordenador, null, 200);
@@ -285,12 +282,12 @@ class FluxoRecrutamentoIT {
     executar(
         post("/api/v1/candidaturas/" + candidaturaId + "/contratacao"),
         coordenador,
-        Map.of("dataAceite", LocalDate.now().toString()),
+        Map.of("dataAceite", LocalDate.now(relogio).toString()),
         200);
     executar(
         post("/api/v1/candidaturas/" + candidaturaId + "/contratacao"),
         coordenador,
-        Map.of("dataAceite", LocalDate.now().toString()),
+        Map.of("dataAceite", LocalDate.now(relogio).toString()),
         422);
     var detalhe = executar(get("/api/v1/vagas/" + vaga.identificador()), coordenador, null, 200);
     assertEquals(1, detalhe.path("vaga").path("posicoesPreenchidas").asInt());
@@ -301,9 +298,9 @@ class FluxoRecrutamentoIT {
         executar(
             get(
                 "/api/v1/indicadores/resumo?de="
-                    + LocalDate.now().withDayOfMonth(1)
+                    + LocalDate.now(relogio).withDayOfMonth(1)
                     + "&ate="
-                    + LocalDate.now()),
+                    + LocalDate.now(relogio)),
             coordenador,
             null,
             200);
@@ -402,7 +399,7 @@ class FluxoRecrutamentoIT {
     executar(
         post("/api/v1/candidaturas/" + candidaturaId + "/contratacao"),
         coordenador,
-        Map.of("dataAceite", LocalDate.now().toString()),
+        Map.of("dataAceite", LocalDate.now(relogio).toString()),
         422);
     alterarStatusVaga(vaga.identificador(), "CONGELADA", coordenador, 200);
     executar(
@@ -442,7 +439,8 @@ class FluxoRecrutamentoIT {
     assertEquals(5, funil.path(2).path("passaram").asInt());
     assertEquals(2, funil.path(3).path("passaram").asInt());
     assertEquals(77.78, funil.path(0).path("percentualConversao").asDouble(), 0.001);
-    String periodo = "?de=" + LocalDate.now().withDayOfMonth(1) + "&ate=" + LocalDate.now();
+    String periodo =
+        "?de=" + LocalDate.now(relogio).withDayOfMonth(1) + "&ate=" + LocalDate.now(relogio);
     executar(get("/api/v1/indicadores/cargos" + periodo), coordenador, null, 200);
     executar(get("/api/v1/indicadores/recrutadores" + periodo), gestor, null, 200);
     var canais = executar(get("/api/v1/indicadores/canais" + periodo), coordenador, null, 200);
@@ -454,7 +452,7 @@ class FluxoRecrutamentoIT {
             "canalId",
             canalId,
             "periodo",
-            LocalDate.now().withDayOfMonth(1).toString(),
+            LocalDate.now(relogio).withDayOfMonth(1).toString(),
             "visitas",
             150),
         200);
@@ -465,7 +463,7 @@ class FluxoRecrutamentoIT {
             "canalId",
             canalId,
             "periodo",
-            LocalDate.now().withDayOfMonth(2).toString(),
+            LocalDate.now(relogio).withDayOfMonth(2).toString(),
             "visitas",
             150),
         422);
@@ -498,7 +496,7 @@ class FluxoRecrutamentoIT {
                               .contentType(MediaType.APPLICATION_JSON)
                               .content(
                                   conversorJson.writeValueAsString(
-                                      Map.of("dataAceite", LocalDate.now().toString()))))
+                                      Map.of("dataAceite", LocalDate.now(relogio).toString()))))
                       .andReturn()
                       .getResponse()
                       .getStatus();
@@ -528,7 +526,11 @@ class FluxoRecrutamentoIT {
             administrador,
             Map.of("candidatoId", candidatoId, "tipo", "ANONIMIZACAO"),
             201);
-    assertEquals(LocalDate.now().plusDays(15).toString(), solicitacao.path("prazo").asString());
+    var dataSolicitacao =
+        Instant.parse(solicitacao.path("solicitadaEm").asString())
+            .atZone(relogio.getZone())
+            .toLocalDate();
+    assertEquals(dataSolicitacao.plusDays(15).toString(), solicitacao.path("prazo").asString());
     executar(
         get("/api/v1/privacidade/candidatos/" + candidatoId + "/exportacao"),
         administrador,

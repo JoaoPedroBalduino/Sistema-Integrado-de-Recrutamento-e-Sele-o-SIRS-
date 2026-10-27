@@ -60,7 +60,7 @@ class FluxoRecrutamentoIT {
         "A suite integrada exige um banco chamado sirs_test.");
     // Only the explicitly configured, disposable integration database is modified.
     bancoDados.execute(
-        "truncate solicitacao_titular,auditoria,visitas_canal,proposta,designacao_avaliador,avaliacao_criterio,historico_etapa,candidatura,candidato,apontamento_horas,vaga_parametro_custo,criterio_vaga,etapa_vaga,historico_status_vaga,vaga_canal,vaga,usuario,area,cargo,canal restart identity cascade");
+        "truncate sessao_supabase,solicitacao_titular,auditoria,visitas_canal,proposta,designacao_avaliador,avaliacao_criterio,historico_etapa,candidatura,candidato,apontamento_horas,vaga_parametro_custo,criterio_vaga,etapa_vaga,historico_status_vaga,vaga_canal,vaga,usuario,area,cargo,canal restart identity cascade");
     bancoDados.execute("truncate meta,parametro_custo restart identity");
     new ResourceDatabasePopulator(
             new ClassPathResource("db/migration/V3__parametros_referencia.sql"))
@@ -250,7 +250,7 @@ class FluxoRecrutamentoIT {
     executar(get("/api/v1/rota-inexistente"), coordenador, null, 404);
     executar(get("/api/v1/vagas?sort=senhaHash,asc"), coordenador, null, 400);
     assertEquals(
-        3,
+        4,
         bancoDados.queryForObject(
             "select count(*) from flyway_schema_history where success", Integer.class));
   }

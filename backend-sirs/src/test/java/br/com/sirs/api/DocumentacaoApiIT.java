@@ -108,7 +108,7 @@ class DocumentacaoApiIT {
         assertTrue(operacao.path("responses").has("500"));
       }
     }
-    assertEquals(59, identificadores.size());
+    assertEquals(61, identificadores.size());
     assertEquals(13, tags.size());
     var criacaoVaga = caminhos.path("/api/v1/vagas").path("post").path("responses");
     assertTrue(criacaoVaga.has("201"));

@@ -55,6 +55,38 @@ $env:ADMIN_PASSWORD = Read-Host 'Senha inicial do administrador'
 
 No Linux/macOS, exporte as mesmas variaveis e use `./mvnw`. Mantenha a chave JWT estavel entre reinicializacoes se os tokens emitidos precisarem continuar validos. Em implantacao, configure as origens reais em `CORS_ORIGINS`, HTTPS no ponto de entrada e `API_DOCS_ENABLED=false` quando a documentacao nao deva estar publicada.
 
+## Swagger / OpenAPI
+
+A documentação interativa está disponível em `http://localhost:8080/swagger-ui.html`
+(também funciona `/swagger-ui/index.html`). A especificação pode ser consumida em:
+
+- JSON: `http://localhost:8080/v3/api-docs`
+- YAML: `http://localhost:8080/v3/api-docs.yaml`
+
+A interface organiza as **59 operações em 13 módulos**, com descrições das regras,
+parâmetros de paginação, formatos de entrada, códigos HTTP e erros padronizados.
+Apenas as rotas `/api/v1/**` entram na especificação; endpoints internos de monitoramento
+não são publicados como operações de negócio.
+
+### Testar uma chamada autenticada
+
+1. Abra o módulo **Autenticação** e a operação `POST /api/v1/auth/login`.
+2. Clique em **Try it out**, informe o e-mail e a senha de uma conta cadastrada e execute.
+3. Copie somente o valor de `accessToken` retornado na resposta.
+4. Clique em **Authorize** e cole esse valor, **sem escrever o prefixo `Bearer`**.
+5. Execute a operação desejada. As permissões por perfil, vaga e designação continuam valendo.
+
+O login e os arquivos da documentação são públicos; os recursos da API continuam exigindo JWT.
+A interface não persiste a autorização após recarregar a página, e os campos de senha são
+marcados como entrada exclusiva (`writeOnly`) no contrato OpenAPI.
+
+Para desativar tanto a interface quanto as especificações, configure
+`API_DOCS_ENABLED=false` e reinicie a aplicação. As URLs documentadas retornarão 404,
+sem alterar a autenticação da API. A porta dos exemplos acompanha a variável `PORT`.
+
+Os testes integrados verificam a interface, os recursos estáticos, JSON/YAML, o contrato
+JWT, o login público, todas as operações, os erros, a paginação e a desativação da documentação.
+
 ## Autenticacao
 
 ```http

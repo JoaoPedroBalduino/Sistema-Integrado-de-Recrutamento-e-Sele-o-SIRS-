@@ -6,8 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class SirsApiApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(SirsApiApplication.class, args);
-	}
-
+  public static void main(String[] args) {
+    SpringApplication.run(SirsApiApplication.class, args);
+  }
 }

@@ -6,11 +6,15 @@ import br.com.sirs.api.exception.*;
 import br.com.sirs.api.model.entity.Usuario;
 import br.com.sirs.api.model.request.*;
 import br.com.sirs.api.model.response.*;
+import br.com.sirs.api.repository.SessaoSupabaseRepository;
 import br.com.sirs.api.repository.UsuarioRepository;
 import br.com.sirs.api.security.ContextoAcesso;
 import java.nio.charset.StandardCharsets;
+import java.time.Clock;
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -34,6 +38,9 @@ public class UsuarioService {
   private final PasswordEncoder codificadorSenha;
   private final ContextoAcesso contextoAcesso;
   private final RegistroAuditoriaService registroAuditoria;
+  private final ObjectProvider<AutenticacaoSupabaseService> supabase;
+  private final SessaoSupabaseRepository sessoesSupabase;
+  private final Clock relogio;
 
   @Transactional(readOnly = true)
   public RespostaPaginada<RespostaUsuario> listarUsuarios(Pageable paginacao) {
@@ -51,8 +58,20 @@ public class UsuarioService {
 
   @Transactional
   public void criarAdministradorInicial(String email, String senha) {
-    if (!usuarios.existsByPerfil(ADMIN))
+    if (!usuarios.existsByPerfil(ADMIN)) {
       cadastrarInternamente(new RequisicaoCadastroUsuario("Administrador", email, senha, ADMIN));
+      return;
+    }
+    var externo = supabase.getIfAvailable();
+    if (externo != null)
+      usuarios
+          .findByEmail(AutenticacaoService.normalizarEmail(email))
+          .filter(usuario -> usuario.getPerfil() == ADMIN && usuario.getSupabaseUsuarioId() == null)
+          .ifPresent(
+              usuario -> {
+                usuario.setSupabaseUsuarioId(externo.provisionarConta(usuario.getEmail(), senha));
+                usuario.setSenhaHash(codificadorSenha.encode(UUID.randomUUID().toString()));
+              });
   }
 
   private Usuario cadastrarInternamente(RequisicaoCadastroUsuario requisicao) {
@@ -66,7 +85,11 @@ public class UsuarioService {
     var usuario = new Usuario();
     usuario.setNome(requisicao.nome().strip());
     usuario.setEmail(email);
-    usuario.setSenhaHash(codificadorSenha.encode(requisicao.senha()));
+    var externo = supabase.getIfAvailable();
+    if (externo != null) {
+      usuario.setSupabaseUsuarioId(externo.provisionarConta(email, requisicao.senha()));
+      usuario.setSenhaHash(codificadorSenha.encode(UUID.randomUUID().toString()));
+    } else usuario.setSenhaHash(codificadorSenha.encode(requisicao.senha()));
     usuario.setPerfil(requisicao.perfil());
     return usuarios.saveAndFlush(usuario);
   }
@@ -87,6 +110,26 @@ public class UsuarioService {
     usuario.setBloqueado(requisicao.bloqueado());
     if (!requisicao.bloqueado()) usuario.setTentativasFalhas(0);
     usuario.setTokenVersion(usuario.getTokenVersion() + 1);
+    sessoesSupabase.revogarTodas(usuario.getId(), relogio.instant());
+    registroAuditoria.registrarAuditoria("usuario", identificador, "ALTERACAO");
+    return RespostaUsuario.of(usuario);
+  }
+
+  @Transactional
+  public RespostaUsuario vincularSupabase(Long identificador, UUID usuarioSupabaseId) {
+    contextoAcesso.exigirPerfil(ADMIN);
+    var externo = supabase.getIfAvailable();
+    if (externo == null)
+      throw new RegraNegocioException("Vinculo disponivel somente com Supabase Auth.");
+    var usuario =
+        usuarios
+            .lockById(identificador)
+            .orElseThrow(() -> new RecursoNaoEncontradoException("Usuario", identificador));
+    externo.validarVinculo(usuarioSupabaseId, usuario.getEmail());
+    usuario.setSupabaseUsuarioId(usuarioSupabaseId);
+    usuario.setSenhaHash(codificadorSenha.encode(UUID.randomUUID().toString()));
+    usuario.setTokenVersion(usuario.getTokenVersion() + 1);
+    sessoesSupabase.revogarTodas(usuario.getId(), relogio.instant());
     registroAuditoria.registrarAuditoria("usuario", identificador, "ALTERACAO");
     return RespostaUsuario.of(usuario);
   }

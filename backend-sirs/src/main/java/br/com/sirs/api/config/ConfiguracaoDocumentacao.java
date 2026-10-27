@@ -30,12 +30,12 @@ import org.springframework.context.annotation.Configuration;
             version = "v1",
             description =
                 """
-        Sistema Integrado de Recrutamento e Seleção.
+        Sistema Integrado de Recrutamento e SeleÃ§Ã£o.
 
-        Para testar operações protegidas, execute POST /api/v1/auth/login e copie o accessToken.
+        Para testar operaÃ§Ãµes protegidas, execute POST /api/v1/auth/login e copie o accessToken.
         Clique em Authorize e informe somente o token, sem o prefixo Bearer.
-        As permissões são verificadas por perfil, vaga responsável e designação de avaliador.
-        Tokens expiram em 30 minutos; logout, troca de senha e alterações de acesso revogam as sessões.
+        As permissÃµes sÃ£o verificadas por perfil, vaga responsÃ¡vel e designaÃ§Ã£o de avaliador.
+        Tokens expiram em 30 minutos; logout, troca de senha e alteraÃ§Ãµes de acesso revogam as sessÃµes.
         """),
     security = @SecurityRequirement(name = "bearerAuth"))
 @SecurityScheme(
@@ -43,7 +43,7 @@ import org.springframework.context.annotation.Configuration;
     type = SecuritySchemeType.HTTP,
     scheme = "bearer",
     bearerFormat = "JWT",
-    description = "Token emitido pelo login. Informe somente o accessToken no botão Authorize.")
+    description = "Token emitido pelo login. Informe somente o accessToken no botÃ£o Authorize.")
 @Configuration
 public class ConfiguracaoDocumentacao {
   @Bean
@@ -55,28 +55,28 @@ public class ConfiguracaoDocumentacao {
           "DetalheErro",
           new ObjectSchema()
               .description(
-                  "Erro HTTP padronizado. O requestId também é enviado no cabeçalho X-Request-Id.")
+                  "Erro HTTP padronizado. O requestId tambÃ©m Ã© enviado no cabeÃ§alho X-Request-Id.")
               .addProperty("type", new StringSchema().format("uri").example("about:blank"))
               .addProperty("title", new StringSchema().example("Unprocessable Entity"))
               .addProperty(
                   "status",
                   new IntegerSchema().minimum(new BigDecimal("400")).maximum(new BigDecimal("599")))
-              .addProperty("detail", new StringSchema().example("Transição de vaga inválida."))
+              .addProperty("detail", new StringSchema().example("TransiÃ§Ã£o de vaga invÃ¡lida."))
               .addProperty("instance", new StringSchema().format("uri"))
               .addProperty("requestId", new StringSchema().format("uuid"))
               .addProperty("errors", new MapSchema().additionalProperties(new StringSchema())));
       Map<String, String> erros =
           Map.of(
               "RequisicaoInvalida",
-                  "Parâmetros, campos ou tipos inválidos; errors detalha os campos quando aplicável.",
+                  "ParÃ¢metros, campos ou tipos invÃ¡lidos; errors detalha os campos quando aplicÃ¡vel.",
               "NaoAutenticado",
-                  "Token ausente, inválido, expirado ou revogado; no login, credenciais inválidas ou conta indisponível.",
+                  "Token ausente, invÃ¡lido, expirado ou revogado; no login, credenciais invÃ¡lidas ou conta indisponÃ­vel.",
               "AcessoNegado",
-                  "O perfil ou a responsabilidade sobre o recurso não permite esta operação.",
-              "RecursoNaoEncontrado", "O recurso solicitado não foi encontrado.",
+                  "O perfil ou a responsabilidade sobre o recurso nÃ£o permite esta operaÃ§Ã£o.",
+              "RecursoNaoEncontrado", "O recurso solicitado nÃ£o foi encontrado.",
               "ConflitoDados",
-                  "Conflito de unicidade ou alteração concorrente. Consulte o estado atual antes de repetir.",
-              "RegraNegocio", "A operação viola uma regra do processo de recrutamento.",
+                  "Conflito de unicidade ou alteraÃ§Ã£o concorrente. Consulte o estado atual antes de repetir.",
+              "RegraNegocio", "A operaÃ§Ã£o viola uma regra do processo de recrutamento.",
               "ErroInterno", "Erro interno. Informe o X-Request-Id ao suporte.");
       erros.forEach((nome, descricao) -> componentes.addResponses(nome, respostaErro(descricao)));
       if (documentacao.getPaths() == null) return;
@@ -91,7 +91,8 @@ public class ConfiguracaoDocumentacao {
                             respostas.putIfAbsent("400", referenciaErro("RequisicaoInvalida"));
                             respostas.putIfAbsent("401", referenciaErro("NaoAutenticado"));
                             boolean login =
-                                caminho.equals("/api/v1/auth/login")
+                                (caminho.equals("/api/v1/auth/login")
+                                        || caminho.equals("/api/v1/auth/refresh"))
                                     && metodo == PathItem.HttpMethod.POST;
                             if (login) operacao.setSecurity(List.of());
                             else respostas.putIfAbsent("403", referenciaErro("AcessoNegado"));
@@ -114,13 +115,13 @@ public class ConfiguracaoDocumentacao {
                                   .forEach(
                                       parametro -> {
                                         if (parametro.getName().equals("page")) {
-                                          parametro.setDescription("Página iniciada em zero.");
+                                          parametro.setDescription("PÃ¡gina iniciada em zero.");
                                           if (parametro.getSchema() != null)
                                             parametro.getSchema().setMinimum(BigDecimal.ZERO);
                                         }
                                         if (parametro.getName().equals("size")) {
                                           parametro.setDescription(
-                                              "Quantidade por página, limitada a 100 registros.");
+                                              "Quantidade por pÃ¡gina, limitada a 100 registros.");
                                           if (parametro.getSchema() != null) {
                                             parametro.getSchema().setMinimum(BigDecimal.ONE);
                                             parametro.getSchema().setMaximum(new BigDecimal("100"));
@@ -128,7 +129,7 @@ public class ConfiguracaoDocumentacao {
                                         }
                                         if (parametro.getName().equals("sort"))
                                           parametro.setDescription(
-                                              "Ordenação no formato campo,asc ou campo,desc. Use somente os campos permitidos pelo recurso.");
+                                              "OrdenaÃ§Ã£o no formato campo,asc ou campo,desc. Use somente os campos permitidos pelo recurso.");
                                       });
                           }));
     };
@@ -152,7 +153,7 @@ public class ConfiguracaoDocumentacao {
 
   private Header cabecalhoRastreabilidade() {
     return new Header()
-        .description("Identificador desta requisição para rastreamento e suporte.")
+        .description("Identificador desta requisiÃ§Ã£o para rastreamento e suporte.")
         .schema(new StringSchema().format("uuid"));
   }
 }

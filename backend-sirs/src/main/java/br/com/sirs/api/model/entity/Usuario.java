@@ -10,6 +10,9 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 public class Usuario extends EntidadeVersionada {
+  @Column(name = "supabase_usuario_id", unique = true)
+  private java.util.UUID supabaseUsuarioId;
+
   @Column(nullable = false, length = 150)
   private String nome;
 

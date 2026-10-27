@@ -12,6 +12,8 @@ import org.springframework.data.jpa.repository.*;
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
   Optional<Usuario> findByEmail(String email);
 
+  Optional<Usuario> findBySupabaseUsuarioId(java.util.UUID identificador);
+
   Page<Usuario> findByPerfilInAndAtivoTrueAndBloqueadoFalse(
       Collection<Perfil> perfis, Pageable paginacao);
 

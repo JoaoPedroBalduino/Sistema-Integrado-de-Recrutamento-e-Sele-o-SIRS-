@@ -20,6 +20,11 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 @RestControllerAdvice
 @Slf4j
 public class TratamentoExcecoes {
+  @ExceptionHandler(IntegracaoIndisponivelException.class)
+  ProblemDetail tratarIntegracaoIndisponivel(IntegracaoIndisponivelException excecao) {
+    return problem(HttpStatus.SERVICE_UNAVAILABLE, excecao.getMessage());
+  }
+
   @ExceptionHandler(ErrorResponseException.class)
   ProblemDetail tratarRespostaHttp(ErrorResponseException excecao) {
     return problem(HttpStatus.valueOf(excecao.getStatusCode().value()), "Requisicao nao atendida.");

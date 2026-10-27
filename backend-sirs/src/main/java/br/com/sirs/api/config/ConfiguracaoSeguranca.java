@@ -1,26 +1,30 @@
 package br.com.sirs.api.config;
 
-import br.com.sirs.api.repository.UsuarioRepository;
+import br.com.sirs.api.security.ConversorAutenticacaoJwt;
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.http.HttpClient;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.*;
 import javax.crypto.spec.SecretKeySpec;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.*;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.*;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.cors.*;
 
 @Configuration
@@ -45,7 +49,39 @@ public class ConfiguracaoSeguranca {
   }
 
   @Bean
-  JwtDecoder jwtDecoder(SecretKeySpec chave, @Value("${sirs.jwt.issuer}") String emissor) {
+  JwtDecoder jwtDecoder(
+      SecretKeySpec chave,
+      @Value("${sirs.jwt.issuer}") String emissor,
+      ObjectProvider<PropriedadesSupabase> configuracaoSupabase) {
+    var propriedades = configuracaoSupabase.getIfAvailable();
+    if (propriedades != null) {
+      var transporte =
+          new JdkClientHttpRequestFactory(
+              HttpClient.newBuilder()
+                  .connectTimeout(Duration.ofSeconds(5))
+                  .followRedirects(HttpClient.Redirect.NEVER)
+                  .build());
+      transporte.setReadTimeout(Duration.ofSeconds(10));
+      var decoder =
+          NimbusJwtDecoder.withJwkSetUri(propriedades.getJwksUrl().toString())
+              .jwsAlgorithms(
+                  algoritmos -> {
+                    algoritmos.clear();
+                    algoritmos.add(SignatureAlgorithm.ES256);
+                    algoritmos.add(SignatureAlgorithm.RS256);
+                  })
+              .restOperations(new RestTemplate(transporte))
+              .build();
+      OAuth2TokenValidator<Jwt> audiencia =
+          token ->
+              token.getAudience() != null && token.getAudience().contains("authenticated")
+                  ? OAuth2TokenValidatorResult.success()
+                  : OAuth2TokenValidatorResult.failure(new OAuth2Error("invalid_token"));
+      decoder.setJwtValidator(
+          new DelegatingOAuth2TokenValidator<>(
+              JwtValidators.createDefaultWithIssuer(propriedades.emissor()), audiencia));
+      return decoder;
+    }
     var decoder = NimbusJwtDecoder.withSecretKey(chave).macAlgorithm(MacAlgorithm.HS256).build();
     decoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(emissor));
     return decoder;
@@ -66,7 +102,7 @@ public class ConfiguracaoSeguranca {
   }
 
   @Bean
-  SecurityFilterChain security(HttpSecurity segurancaHttp, UsuarioRepository usuarios)
+  SecurityFilterChain security(HttpSecurity segurancaHttp, ConversorAutenticacaoJwt conversor)
       throws Exception {
     return segurancaHttp
         .csrf(configuracao -> configuracao.disable())
@@ -75,7 +111,7 @@ public class ConfiguracaoSeguranca {
         .authorizeHttpRequests(
             autorizacao ->
                 autorizacao
-                    .requestMatchers(HttpMethod.POST, "/api/v1/auth/login")
+                    .requestMatchers(HttpMethod.POST, "/api/v1/auth/login", "/api/v1/auth/refresh")
                     .permitAll()
                     .requestMatchers(
                         "/actuator/health",
@@ -102,30 +138,7 @@ public class ConfiguracaoSeguranca {
                             error(resposta, 401, "Token invalido ou expirado."))
                     .jwt(
                         configuracaoToken ->
-                            configuracaoToken.jwtAuthenticationConverter(
-                                jwt -> {
-                                  try {
-                                    var usuario =
-                                        usuarios
-                                            .findById(Long.valueOf(jwt.getSubject()))
-                                            .orElseThrow();
-                                    Number versaoToken = jwt.getClaim("ver");
-                                    if (!usuario.isAtivo()
-                                        || usuario.isBloqueado()
-                                        || versaoToken == null
-                                        || versaoToken.longValue() != usuario.getTokenVersion())
-                                      throw new IllegalArgumentException();
-                                    return new JwtAuthenticationToken(
-                                        jwt,
-                                        List.of(
-                                            new SimpleGrantedAuthority(
-                                                "ROLE_" + usuario.getPerfil())),
-                                        jwt.getSubject());
-                                  } catch (RuntimeException excecao) {
-                                    throw new OAuth2AuthenticationException(
-                                        new OAuth2Error("invalid_token"));
-                                  }
-                                })))
+                            configuracaoToken.jwtAuthenticationConverter(conversor)))
         .build();
   }
 

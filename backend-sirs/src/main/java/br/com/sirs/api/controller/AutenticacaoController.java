@@ -2,6 +2,7 @@ package br.com.sirs.api.controller;
 
 import br.com.sirs.api.model.request.RequisicaoAlteracaoSenha;
 import br.com.sirs.api.model.request.RequisicaoAutenticacao;
+import br.com.sirs.api.model.request.RequisicaoRenovacaoSessao;
 import br.com.sirs.api.model.response.RespostaAutenticacao;
 import br.com.sirs.api.model.response.RespostaUsuario;
 import br.com.sirs.api.security.ContextoAcesso;
@@ -15,7 +16,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "Autenticação", description = "Login e gerenciamento da sessão do usuário autenticado.")
+@Tag(
+    name = "AutenticaÃ§Ã£o",
+    description = "Login e gerenciamento da sessÃ£o do usuÃ¡rio autenticado.")
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
@@ -24,23 +27,25 @@ public class AutenticacaoController {
   private final ContextoAcesso contextoAcesso;
 
   @Operation(
-      summary = "Autenticar usuário",
+      summary = "Autenticar usuÃ¡rio",
       operationId = "autenticarUsuario",
       description =
-          "Operação pública. Retorna um accessToken JWT válido por 30 minutos. Cinco falhas consecutivas bloqueiam a conta.")
+          "OperaÃ§Ã£o pÃºblica. Retorna um accessToken JWT vÃ¡lido por 30 minutos. Cinco falhas consecutivas bloqueiam a conta.")
   @ApiResponse(
       responseCode = "200",
-      description = "Operação concluída com sucesso.",
+      description = "OperaÃ§Ã£o concluÃ­da com sucesso.",
       useReturnTypeSchema = true)
   @PostMapping("/auth/login")
   public RespostaAutenticacao login(@Valid @RequestBody RequisicaoAutenticacao requisicao) {
     return autenticacao.login(requisicao);
   }
 
-  @Operation(summary = "Consultar usuário autenticado", operationId = "consultarUsuarioAutenticado")
+  @Operation(
+      summary = "Consultar usuÃ¡rio autenticado",
+      operationId = "consultarUsuarioAutenticado")
   @ApiResponse(
       responseCode = "200",
-      description = "Operação concluída com sucesso.",
+      description = "OperaÃ§Ã£o concluÃ­da com sucesso.",
       useReturnTypeSchema = true)
   @GetMapping("/auth/me")
   public RespostaUsuario me() {
@@ -48,12 +53,12 @@ public class AutenticacaoController {
   }
 
   @Operation(
-      summary = "Encerrar sessões do usuário",
+      summary = "Encerrar sessÃµes do usuÃ¡rio",
       operationId = "encerrarSessoesDoUsuario",
       description = "Revoga todos os tokens emitidos anteriormente para esta conta.")
   @ApiResponse(
       responseCode = "204",
-      description = "Operação concluída, sem corpo de resposta.",
+      description = "OperaÃ§Ã£o concluÃ­da, sem corpo de resposta.",
       content = @Content)
   @PostMapping("/auth/logout")
   @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -62,16 +67,30 @@ public class AutenticacaoController {
   }
 
   @Operation(
-      summary = "Alterar senha do usuário",
+      summary = "Alterar senha do usuÃ¡rio",
       operationId = "alterarSenhaDoUsuario",
-      description = "Exige a senha atual e revoga os tokens anteriores após a alteração.")
+      description = "Exige a senha atual e revoga os tokens anteriores apÃ³s a alteraÃ§Ã£o.")
   @ApiResponse(
       responseCode = "204",
-      description = "Operação concluída, sem corpo de resposta.",
+      description = "OperaÃ§Ã£o concluÃ­da, sem corpo de resposta.",
       content = @Content)
   @PutMapping("/auth/senha")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void password(@Valid @RequestBody RequisicaoAlteracaoSenha requisicao) {
     autenticacao.password(requisicao);
+  }
+
+  @Operation(
+      summary = "Renovar sessão Supabase",
+      operationId = "renovarSessaoSupabase",
+      description =
+          "Operação pública: envie o refreshToken no corpo, sem Authorization expirado. Disponível somente no perfil Supabase.")
+  @ApiResponse(
+      responseCode = "200",
+      description = "Sessão renovada e refresh token rotacionado.",
+      useReturnTypeSchema = true)
+  @PostMapping("/auth/refresh")
+  public RespostaAutenticacao renovar(@Valid @RequestBody RequisicaoRenovacaoSessao requisicao) {
+    return autenticacao.renovarSessao(requisicao.refreshToken());
   }
 }

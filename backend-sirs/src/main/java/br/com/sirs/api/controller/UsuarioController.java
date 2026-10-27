@@ -1,6 +1,7 @@
 package br.com.sirs.api.controller;
 
 import br.com.sirs.api.model.request.*;
+import br.com.sirs.api.model.request.RequisicaoVinculoSupabase;
 import br.com.sirs.api.model.response.*;
 import br.com.sirs.api.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,8 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(
-    name = "Usuários",
-    description = "Administração das contas internas, perfis, bloqueio e ativação.")
+    name = "UsuÃ¡rios",
+    description = "AdministraÃ§Ã£o das contas internas, perfis, bloqueio e ativaÃ§Ã£o.")
 @RestController
 @RequestMapping("/api/v1/usuarios")
 @RequiredArgsConstructor
@@ -24,12 +25,12 @@ public class UsuarioController {
   private final UsuarioService usuarios;
 
   @Operation(
-      summary = "Listar usuários",
+      summary = "Listar usuÃ¡rios",
       operationId = "listarUsuarios",
-      description = "Disponível para ADMIN e COORD_RH. Senhas e hashes nunca são retornados.")
+      description = "DisponÃ­vel para ADMIN e COORD_RH. Senhas e hashes nunca sÃ£o retornados.")
   @ApiResponse(
       responseCode = "200",
-      description = "Operação concluída com sucesso.",
+      description = "OperaÃ§Ã£o concluÃ­da com sucesso.",
       useReturnTypeSchema = true)
   @GetMapping
   public RespostaPaginada<RespostaUsuario> listar(@ParameterObject Pageable paginacao) {
@@ -37,10 +38,10 @@ public class UsuarioController {
   }
 
   @Operation(
-      summary = "Cadastrar usuário",
+      summary = "Cadastrar usuÃ¡rio",
       operationId = "cadastrarUsuario",
       description =
-          "Somente ADMIN. A senha deve conter pelo menos 12 caracteres e no máximo 72 bytes UTF-8.")
+          "Somente ADMIN. A senha deve conter pelo menos 12 caracteres e no mÃ¡ximo 72 bytes UTF-8.")
   @ApiResponse(
       responseCode = "201",
       description = "Recurso criado com sucesso.",
@@ -54,18 +55,33 @@ public class UsuarioController {
   }
 
   @Operation(
-      summary = "Atualizar acesso do usuário",
+      summary = "Atualizar acesso do usuÃ¡rio",
       operationId = "atualizarAcessoDoUsuario",
       description =
-          "Somente ADMIN. Alterações revogam tokens anteriores. Um administrador não pode remover o próprio acesso.")
+          "Somente ADMIN. AlteraÃ§Ãµes revogam tokens anteriores. Um administrador nÃ£o pode remover o prÃ³prio acesso.")
   @ApiResponse(
       responseCode = "200",
-      description = "Operação concluída com sucesso.",
+      description = "OperaÃ§Ã£o concluÃ­da com sucesso.",
       useReturnTypeSchema = true)
   @PutMapping("/{identificador}")
   public RespostaUsuario atualizar(
       @PathVariable Long identificador,
       @Valid @RequestBody RequisicaoAtualizacaoUsuario requisicao) {
     return usuarios.atualizar(identificador, requisicao);
+  }
+
+  @Operation(
+      summary = "Vincular usuário ao Supabase",
+      operationId = "vincularUsuarioSupabase",
+      description =
+          "Somente ADMIN. Vincula uma conta Supabase existente cujo e-mail coincide com o cadastro SIRS. Revoga sessões anteriores.")
+  @ApiResponse(
+      responseCode = "200",
+      description = "Conta vinculada com sucesso.",
+      useReturnTypeSchema = true)
+  @PutMapping("/{identificador}/supabase")
+  public RespostaUsuario vincularSupabase(
+      @PathVariable Long identificador, @Valid @RequestBody RequisicaoVinculoSupabase requisicao) {
+    return usuarios.vincularSupabase(identificador, requisicao.usuarioSupabaseId());
   }
 }

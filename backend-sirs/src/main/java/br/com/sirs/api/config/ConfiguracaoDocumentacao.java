@@ -35,7 +35,8 @@ import org.springframework.context.annotation.Configuration;
         Para testar operaÃ§Ãµes protegidas, execute POST /api/v1/auth/login e copie o accessToken.
         Clique em Authorize e informe somente o token, sem o prefixo Bearer.
         As permissÃµes sÃ£o verificadas por perfil, vaga responsÃ¡vel e designaÃ§Ã£o de avaliador.
-        Tokens expiram em 30 minutos; logout, troca de senha e alteraÃ§Ãµes de acesso revogam as sessÃµes.
+        No modo local, tokens expiram em 30 minutos; no Supabase, consulte expiresAt e use POST /api/v1/auth/refresh.
+        Logout, troca de senha e alteracoes de acesso revogam as sessoes registradas no SIRS.
         """),
     security = @SecurityRequirement(name = "bearerAuth"))
 @SecurityScheme(

@@ -30,7 +30,7 @@ public class AutenticacaoController {
       summary = "Autenticar usuÃ¡rio",
       operationId = "autenticarUsuario",
       description =
-          "OperaÃ§Ã£o pÃºblica. Retorna um accessToken JWT vÃ¡lido por 30 minutos. Cinco falhas consecutivas bloqueiam a conta.")
+          "Operacao publica. O modo local usa JWT de 30 minutos; no perfil Supabase, a validade e definida pelo provedor. Cinco falhas consecutivas bloqueiam a conta.")
   @ApiResponse(
       responseCode = "200",
       description = "OperaÃ§Ã£o concluÃ­da com sucesso.",

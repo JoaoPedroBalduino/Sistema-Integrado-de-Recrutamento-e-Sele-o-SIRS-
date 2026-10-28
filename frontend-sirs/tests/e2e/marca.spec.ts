@@ -51,6 +51,15 @@ test('organiza vagas e candidaturas por prioridade em cada tamanho de tela', asy
   await page.getByLabel('Senha', { exact: true }).fill('SenhaTesteFrontend123!')
   await page.getByRole('button', { name: 'Entrar', exact: true }).click()
   await expect(page.getByRole('heading', { name: /Marina/ })).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: 'Resultados do período', exact: true }),
+  ).toBeVisible()
+  await expect(
+    page.getByRole('progressbar', { name: 'Percentual de vagas no prazo' }),
+  ).toHaveAttribute('aria-valuenow', '80')
+  await expect(
+    page.getByRole('img', { name: 'Vagas fechadas em cada mês do ano', exact: true }),
+  ).toBeVisible()
   const principal = page.locator('.dashboard-main')
   const candidaturas = page.locator('.recent-applications')
   await expect(
@@ -60,7 +69,7 @@ test('organiza vagas e candidaturas por prioridade em cada tamanho de tela', asy
     candidaturas.getByRole('heading', { name: 'Últimas candidaturas', exact: true }),
   ).toBeVisible()
   const vagas = (await principal.boundingBox())!
-  const recentes = (await candidaturas.boundingBox())!
+  const recentes = (await page.locator('.dashboard-aside').boundingBox())!
   if (page.viewportSize()!.width > 1200) {
     expect(recentes.x).toBeGreaterThan(vagas.x + vagas.width)
     expect(Math.abs(recentes.y - vagas.y)).toBeLessThan(2)

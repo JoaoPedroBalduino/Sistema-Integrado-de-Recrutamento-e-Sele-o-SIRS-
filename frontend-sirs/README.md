@@ -119,3 +119,9 @@ As imagens originais da marca ficam em `public/branding/`, sem alteração de pi
 `app/assets/css/main.css` reúne os elementos compartilhados de tabelas, formulários, estados e modais. `workspace.css` define a navegação, o resumo operacional, o login e seus pontos de adaptação. A navegação usa superfícies claras e realce discreto; os indicadores formam uma faixa, e as vagas têm prioridade sobre o histórico no painel. O login apresenta o fluxo do recrutamento sem simular dados ou atividades da conta, com controle acessível de visibilidade da senha e aviso de Caps Lock.
 
 Os testes de navegador conferem a disposição em desktop/mobile, as logos, os controles do login e a ausência de transbordamento nas larguras de 320, 768 e 1024 pixels.
+
+### Profundidade visual e indicadores
+
+A identidade usa índigo e superfícies em camadas, mantendo uma única faixa de indicadores em vez de cartões repetidos. O painel lateral `SirsResumoPeriodo` apresenta os dados já retornados pela API: percentual no prazo, meta vigente, ciclo de admissão e vagas atrasadas. A ausência de vagas consideradas recebe um estado próprio, sem simular resultados.
+
+`SirsGraficoHistorico` é compartilhado entre o painel e os indicadores, com escala calculada a partir dos valores, meses identificados, linhas de referência e tabela equivalente para leitores de tela. Percentuais visuais são limitados entre 0 e 100; os valores de origem permanecem inalterados.

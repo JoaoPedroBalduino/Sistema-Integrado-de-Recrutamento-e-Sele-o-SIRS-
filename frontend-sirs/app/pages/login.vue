@@ -26,10 +26,7 @@ async function entrar() {
 <template>
   <div class="login-page">
     <section class="login-story">
-      <div class="brand">
-        <span class="brand-symbol">S</span
-        ><span>SIRS<span class="brand-caption">RECRUTAMENTO & SELEÇÃO</span></span>
-      </div>
+      <div class="brand"><SirsMarca /></div>
       <div class="login-story-body">
         <span class="login-eyebrow"><span class="connection-dot" />GESTÃO DE RECRUTAMENTO</span>
         <h1>Recrutamento organizado.<br /><span>Decisões mais claras.</span></h1>

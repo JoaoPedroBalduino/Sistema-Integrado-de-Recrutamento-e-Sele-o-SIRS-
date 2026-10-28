@@ -3,7 +3,7 @@ defineProps<{ error: { statusCode?: number; statusMessage?: string } }>()
 </script>
 <template>
   <div class="error-page">
-    <span class="brand-symbol">S</span>
+    <SirsMarca variante="simbolo" />
     <p class="eyebrow">SIRS · {{ error.statusCode || 500 }}</p>
     <h1>
       {{

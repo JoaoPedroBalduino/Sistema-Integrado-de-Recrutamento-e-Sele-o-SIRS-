@@ -42,10 +42,7 @@ async function sair() {
     <a class="skip-link" href="#conteudo-principal">Ir para o conteúdo</a>
     <div v-if="menuAberto" class="sidebar-overlay" @click="menuAberto = false" />
     <aside class="sidebar" :class="{ 'is-open': menuAberto }">
-      <NuxtLink to="/" class="brand"
-        ><span class="brand-symbol">S</span
-        ><span>SIRS<span class="brand-caption">RECRUTAMENTO & SELEÇÃO</span></span></NuxtLink
-      >
+      <NuxtLink to="/" class="brand" aria-label="SIRS · Página inicial"><SirsMarca /></NuxtLink>
       <div class="workspace-label">
         <span class="workspace-avatar"><SirsIcone nome="building" :tamanho="17" /></span
         ><span>Espaço de trabalho<small>Gestão de pessoas</small></span

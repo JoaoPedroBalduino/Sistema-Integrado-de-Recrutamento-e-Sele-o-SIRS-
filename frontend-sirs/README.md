@@ -109,3 +109,7 @@ docker compose up --build -d
 A imagem final contém somente `.output`, executa sem root e usa filesystem somente leitura no Compose. Segredos, dependências locais, fixtures e relatórios são excluídos do contexto Docker. A porta do Compose fica vinculada ao loopback; configure HTTPS no proxy público.
 
 Referências: [Nuxt](https://nuxt.com/docs/4.x), [Vue](https://vuejs.org/guide/introduction.html), [Playwright](https://playwright.dev/docs/intro), [Vitest](https://vitest.dev/guide/).
+
+## Identidade visual
+
+As imagens originais da marca ficam em `public/branding/`, sem alteração de pixels. O componente `SirsMarca` usa uma janela SVG para enquadrar a logo horizontal no login e na navegação e o símbolo na página de erro, preservando as proporções e o texto da imagem. O favicon PNG utiliza o símbolo sobre fundo transparente e está configurado no cabeçalho global. Os demais ícones continuam na biblioteca Lucide.

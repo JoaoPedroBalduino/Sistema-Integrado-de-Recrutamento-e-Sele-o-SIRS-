@@ -122,36 +122,11 @@ a svg {
 .brand {
   display: flex;
   align-items: center;
-  gap: 11px;
-  color: white;
-  font-size: 24px;
-  font-weight: 750;
-  letter-spacing: 1px;
+  width: fit-content;
+  max-width: 100%;
 }
-.brand:hover {
-  color: #fff;
-}
-.brand-symbol {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 11px;
-  width: 41px;
-  height: 43px;
-  background: #6056ee;
-  color: #fff;
-  font-size: 27px;
-  font-weight: 700;
-  box-shadow: 0 5px 15px #00000010;
-  flex-shrink: 0;
-}
-.brand-caption {
-  display: block;
-  color: #8490a7;
-  font-size: 7px;
-  letter-spacing: 1.6px;
-  font-weight: 550;
-  margin-top: 3px;
+.login-story .brand {
+  width: 280px;
 }
 .sidebar > .brand {
   margin: 0 10px 28px;
@@ -1655,7 +1630,7 @@ textarea {
     min-height: 0;
   }
   .login-story .brand {
-    font-size: 21px;
+    width: 230px;
   }
   .login-story-body {
     padding: 30px 0;
@@ -1779,10 +1754,6 @@ textarea {
 }
 .nav-section {
   font-size: 10px;
-}
-.brand-caption {
-  font-size: 8px;
-  letter-spacing: 1.2px;
 }
 .breadcrumb {
   font-size: 12px;

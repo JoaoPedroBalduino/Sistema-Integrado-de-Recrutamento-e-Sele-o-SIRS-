@@ -5,6 +5,10 @@ async function entrar(pagina: Page, email = 'coordenacao@exemplo.test') {
   await pagina.getByLabel('E-mail corporativo').fill(email)
   await pagina.getByLabel('Senha', { exact: true }).fill(senha)
   await pagina.getByRole('button', { name: 'Entrar', exact: true }).click()
+  const confirmacao = pagina.getByRole('dialog', { name: 'Login realizado', exact: true })
+  await expect(confirmacao).toBeVisible()
+  await confirmacao.getByRole('button', { name: 'Entendi', exact: true }).click()
+
   await expect(pagina).toHaveURL(/\/$/)
   await expect(pagina.getByRole('button', { name: 'Sair da conta', exact: true })).toBeVisible()
 }
@@ -280,6 +284,9 @@ test('logout limpa o cookie e bloqueia o retorno a páginas protegidas', async (
   await entrar(page)
   await page.getByRole('button', { name: 'Sair da conta', exact: true }).click()
   await expect(page).toHaveURL(/\/login$/)
+  const confirmacao = page.getByRole('dialog', { name: 'Sessão encerrada', exact: true })
+  await expect(confirmacao).toContainText('Você saiu da sua conta.')
+  await confirmacao.getByRole('button', { name: 'Entendi', exact: true }).click()
   expect((await context.cookies()).some((cookie) => cookie.name === 'sirs-session')).toBe(false)
   await page.goto('/vagas')
   await expect(page).toHaveURL(/\/login/)

@@ -5,10 +5,41 @@ async function entrar(pagina: Page) {
   await pagina.getByLabel('E-mail corporativo').fill('coordenacao@exemplo.test')
   await pagina.getByLabel('Senha', { exact: true }).fill('SenhaTesteFrontend123!')
   await pagina.getByRole('button', { name: 'Entrar', exact: true }).click()
+  const confirmacao = pagina.getByRole('dialog', { name: 'Login realizado', exact: true })
+  await expect(confirmacao).toBeVisible()
+  await confirmacao.getByRole('button', { name: 'Entendi', exact: true }).click()
+
   await expect(pagina.getByRole('heading', { name: /Marina/ })).toBeVisible()
 }
 test.beforeEach(async ({ request }) => {
   await request.post('http://127.0.0.1:4100/__test__/reset')
+})
+
+test('confirma login no destino solicitado e logout na tela de acesso', async ({
+  page,
+  context,
+}) => {
+  await page.goto('/login?destino=/vagas')
+  await page.getByLabel('E-mail corporativo').fill('coordenacao@exemplo.test')
+  await page.getByLabel('Senha', { exact: true }).fill('SenhaTesteFrontend123!')
+  await page.getByRole('button', { name: 'Entrar', exact: true }).click()
+  await expect(page).toHaveURL(/\/vagas$/)
+  const entrada = page.getByRole('dialog', { name: 'Login realizado', exact: true })
+  await expect(entrada).toContainText('Você entrou na sua conta com sucesso.')
+  await page.screenshot({ path: test.info().outputPath('login-confirmado.png'), fullPage: true })
+  await entrada.getByRole('button', { name: 'Entendi', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Vagas', exact: true })).toBeVisible()
+  await page.getByRole('button', { name: 'Sair da conta', exact: true }).click()
+  await expect(page).toHaveURL(/\/login$/)
+  const saida = page.getByRole('dialog', { name: 'Sessão encerrada', exact: true })
+  await expect(saida).toContainText('Você saiu da sua conta.')
+  expect((await context.cookies()).some((cookie) => cookie.name === 'sirs-session')).toBe(false)
+  await page.screenshot({ path: test.info().outputPath('logout-confirmado.png'), fullPage: true })
+  await saida.getByRole('button', { name: 'Entendi', exact: true }).click()
+  await expect(page.getByLabel('E-mail corporativo')).toBeEditable()
+  await page.reload()
+  await expect(page.getByRole('dialog', { name: 'Sessão encerrada', exact: true })).toHaveCount(0)
+  await expect(page.getByRole('dialog', { name: 'Login realizado', exact: true })).toHaveCount(0)
 })
 
 test('mostra erro de login em modal e devolve o foco após Escape', async ({ page }) => {

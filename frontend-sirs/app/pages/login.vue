@@ -111,10 +111,6 @@ async function entrar() {
         </div>
       </section>
       <aside class="login-context" aria-labelledby="titulo-processo">
-        <div class="login-context-heading">
-          <span class="login-context-rule" />
-          <p class="login-section-label">O processo, de ponta a ponta</p>
-        </div>
         <h2 id="titulo-processo">Da vaga<br />à admissão<span>.</span></h2>
         <p class="login-context-intro">Um processo por vaga. Cada candidatura com seu histórico.</p>
         <ol class="login-process" aria-label="Etapas de um processo seletivo">
@@ -143,13 +139,7 @@ async function entrar() {
             <span class="login-step-number">03</span>
           </li>
         </ol>
-        <p class="login-context-note">
-          Seu perfil define as informações e ações disponíveis no sistema.
-        </p>
       </aside>
     </main>
-    <footer class="login-footer">
-      <span>SIRS · Recrutamento e seleção</span><span>{{ new Date().getFullYear() }}</span>
-    </footer>
   </div>
 </template>

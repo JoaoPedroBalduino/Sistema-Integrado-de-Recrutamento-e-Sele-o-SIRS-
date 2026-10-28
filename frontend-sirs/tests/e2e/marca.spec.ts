@@ -7,6 +7,15 @@ test.beforeEach(async ({ request }) => {
 test('apresenta a logo original no login e carrega o favicon', async ({ page, request }) => {
   await page.goto('/login')
   await expect(page).toHaveTitle('Entrar')
+  await expect(page.getByText('O processo, de ponta a ponta', { exact: true })).toHaveCount(0)
+  await expect(
+    page.getByText('Seu perfil define as informações e ações disponíveis no sistema.', {
+      exact: true,
+    }),
+  ).toHaveCount(0)
+  await expect(page.locator('.login-context-heading, .login-context-note')).toHaveCount(0)
+  await expect(page.locator('footer')).toHaveCount(0)
+  await expect(page.locator('.login-process > li')).toHaveCount(3)
   await expect(page.locator('meta[name="description"]')).toHaveAttribute(
     'content',
     'Sistema Integrado de Recrutamento e Seleção. Pessoas, processos e decisões em um só lugar.',

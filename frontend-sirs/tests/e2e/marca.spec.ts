@@ -79,6 +79,15 @@ test('organiza vagas e candidaturas por prioridade em cada tamanho de tela', asy
     .click()
   await expect(page.getByRole('heading', { name: 'Vagas', exact: true })).toBeVisible()
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+  if (page.viewportSize()!.width <= 720) {
+    await expect
+      .poll(
+        async () =>
+          (await page.locator('.sidebar').boundingBox())!.x +
+          (await page.locator('.sidebar').boundingBox())!.width,
+      )
+      .toBeLessThanOrEqual(0)
+  }
   await page.screenshot({ path: test.info().outputPath('vagas-organizadas.png'), fullPage: true })
   for (const largura of [320, 768, 1024]) {
     await page.setViewportSize({ width: largura, height: 900 })

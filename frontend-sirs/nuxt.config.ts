@@ -10,12 +10,12 @@ export default defineNuxtConfig({
   app: {
     head: {
       htmlAttrs: { lang: 'pt-BR' },
-      titleTemplate: '%s � SIRS',
+      titleTemplate: '%s | SIRS',
       meta: [
         {
           name: 'description',
           content:
-            'Sistema Integrado de Recrutamento e Sele��o. Pessoas, processos e decis�es em um s� lugar.',
+            'Sistema Integrado de Recrutamento e Seleção. Pessoas, processos e decisões em um só lugar.',
         },
         { name: 'robots', content: 'noindex, nofollow' },
       ],

@@ -113,3 +113,9 @@ Referências: [Nuxt](https://nuxt.com/docs/4.x), [Vue](https://vuejs.org/guide/i
 ## Identidade visual
 
 As imagens originais da marca ficam em `public/branding/`, sem alteração de pixels. O componente `SirsMarca` usa uma janela SVG para enquadrar a logo horizontal no login e na navegação e o símbolo na página de erro, preservando as proporções e o texto da imagem. O favicon PNG utiliza o símbolo sobre fundo transparente e está configurado no cabeçalho global. Os demais ícones continuam na biblioteca Lucide.
+
+## Organização visual
+
+`app/assets/css/main.css` reúne os elementos compartilhados de tabelas, formulários, estados e modais. `workspace.css` define a navegação, o resumo operacional, o login e seus pontos de adaptação. A navegação usa superfícies claras e realce discreto; os indicadores formam uma faixa, e as vagas têm prioridade sobre o histórico no painel. O login apresenta o fluxo do recrutamento sem simular dados ou atividades da conta, com controle acessível de visibilidade da senha e aviso de Caps Lock.
+
+Os testes de navegador conferem a disposição em desktop/mobile, as logos, os controles do login e a ausência de transbordamento nas larguras de 320, 768 e 1024 pixels.

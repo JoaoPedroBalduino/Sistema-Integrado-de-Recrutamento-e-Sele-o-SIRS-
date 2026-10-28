@@ -46,9 +46,7 @@ const { data, status, error, refresh } = await useAsyncData(
   },
   { watch: [periodo] },
 )
-const maiorVolume = computed(() =>
-  Math.max(1, ...(data.value?.historico.map((mes) => mes.vagasFechadas) || [])),
-)
+
 function exportar() {
   if (!data.value) return
   baixarArquivo(
@@ -121,15 +119,10 @@ function exportar() {
           </div>
         </div>
         <div class="panel-body">
-          <div class="chart-bars" role="img" aria-label="Quantidade de vagas concluídas por mês">
-            <div v-for="mes in data.historico" :key="mes.de" class="chart-column">
-              <strong>{{ mes.vagasFechadas }}</strong>
-              <div
-                :style="{ height: Math.max(2, (mes.vagasFechadas / maiorVolume) * 120) + 'px' }"
-              />
-              <small>{{ mes.de.slice(5, 7) }}/{{ mes.de.slice(2, 4) }}</small>
-            </div>
-          </div>
+          <SirsGraficoHistorico
+            :periodos="data.historico"
+            titulo="Quantidade de vagas concluídas por mês"
+          />
         </div>
       </section>
       <div class="section-tabs">

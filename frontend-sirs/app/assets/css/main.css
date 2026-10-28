@@ -1,13 +1,13 @@
 :root {
   font-family: 'Inter Variable', Inter, system-ui, sans-serif;
-  color: #292b30;
-  background: #fafaf8;
+  color: #252b40;
+  background: #f3f4f9;
   font-synthesis: none;
-  --brand: #4f46c8;
-  --border: #e3e3de;
-  --muted: #73756e;
+  --brand: #6050ce;
+  --border: #e3e6f0;
+  --muted: #6b7287;
   --navy: #252830;
-  --radius: 5px;
+  --radius: 12px;
 }
 * {
   box-sizing: border-box;
@@ -56,7 +56,7 @@ select:focus,
 textarea:focus {
   outline: none;
   border-color: #8178f3;
-  box-shadow: 0 0 0 3px #4f46c815;
+  box-shadow: 0 0 0 3px #6050ce15;
 }
 h1,
 h2,
@@ -109,9 +109,9 @@ a svg {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
-  background: #ecece5;
-  color: #565d52;
+  border-radius: 10px;
+  background: #eeecfb;
+  color: #6b5da8;
   font-size: 11px;
   font-weight: 700;
   flex-shrink: 0;
@@ -166,7 +166,7 @@ a svg {
   flex-shrink: 0;
 }
 .button {
-  border-radius: 4px;
+  border-radius: 8px;
   display: inline-flex;
   justify-content: center;
   align-items: center;
@@ -180,12 +180,12 @@ a svg {
   white-space: nowrap;
 }
 .button.primary {
-  background: #30323a;
+  background: var(--brand);
   color: #fff;
-  box-shadow: none;
+  box-shadow: 0 3px 8px #6050ce18;
 }
 .button.primary:hover {
-  background: #1e2026;
+  background: #5041b8;
   color: white;
 }
 .button.secondary {
@@ -195,7 +195,7 @@ a svg {
   box-shadow: 0 1px 2px #00000003;
 }
 .button.secondary:hover {
-  background: #f5f5f1;
+  background: #f7f8fc;
   color: #333f56;
 }
 .button.danger {
@@ -211,8 +211,8 @@ a svg {
 .panel {
   background: #fff;
   border: 1px solid var(--border);
-  border-radius: 5px;
-  box-shadow: none;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px #20274804;
   overflow: hidden;
   margin-bottom: 23px;
 }
@@ -257,9 +257,9 @@ th {
   font-size: 12px;
   letter-spacing: 0;
   font-weight: 500;
-  color: #6c706b;
+  color: #6b7287;
   text-transform: none;
-  background: #f5f5f1;
+  background: #f7f8fc;
   border-bottom: 1px solid var(--border);
   padding: 12px 18px;
   white-space: nowrap;
@@ -268,7 +268,7 @@ td {
   font-size: 11px;
   color: #525750;
   padding: 16px 18px;
-  border-bottom: 1px solid #eaeae5;
+  border-bottom: 1px solid #edf0f7;
   line-height: 1.6;
 }
 tbody tr:last-child td {
@@ -402,15 +402,15 @@ td small {
   font-weight: 500;
 }
 .filter-tabs button.active {
-  background: #eaeae4;
-  border-color: #d9dad3;
-  color: #30332f;
+  background: #eeecfb;
+  border-color: #ddd9f3;
+  color: #5846b5;
 }
 .filter-tabs button:hover {
-  background: #efefea;
+  background: #f2f2fa;
 }
 .filter-tabs button span {
-  background: #e0dcfa;
+  background: #ebe7fb;
   border-radius: 3px;
   padding: 1px 5px;
   margin-left: 6px;
@@ -440,7 +440,7 @@ td small {
 }
 .field small {
   font-size: 10px;
-  color: #707b62;
+  color: #748096;
   line-height: 1.5;
 }
 .field small.field-error {
@@ -451,11 +451,11 @@ select,
 textarea {
   width: 100%;
   background: #fff;
-  border: 1px solid #d9ddd2;
+  border: 1px solid #dfe3ee;
   border-radius: 4px;
   padding: 10px 12px;
   font-size: 11px;
-  color: #424b39;
+  color: #414a62;
   transition:
     box-shadow 0.15s,
     border-color 0.15s;
@@ -463,7 +463,7 @@ textarea {
 }
 input::placeholder,
 textarea::placeholder {
-  color: #77806b;
+  color: #788197;
 }
 input[type='checkbox'] {
   width: 17px;
@@ -489,7 +489,7 @@ textarea {
   letter-spacing: 0;
   font-size: 12px;
   font-weight: 500;
-  color: #6c706b;
+  color: #6b7287;
   padding: 12px 18px;
 }
 .form-footer {
@@ -562,7 +562,7 @@ textarea {
 .progress-track {
   height: 6px;
   border-radius: 5px;
-  background: #f0f1eb;
+  background: #eff1f8;
   overflow: hidden;
 }
 .progress-fill {
@@ -616,7 +616,7 @@ textarea {
 }
 .list-item {
   padding: 15px 0;
-  border-bottom: 1px solid #efefea;
+  border-bottom: 1px solid #f2f2fa;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -662,9 +662,9 @@ textarea {
   min-width: 260px;
   max-width: 320px;
   flex: 1;
-  border: 1px solid #e0e3d8;
+  border: 1px solid #e1e5ef;
   border-radius: 5px;
-  background: #f0f1eb;
+  background: #eff1f8;
   padding: 13px;
 }
 .kanban-column-header {
@@ -673,10 +673,10 @@ textarea {
   justify-content: space-between;
   margin: 3px 0 17px;
   font-size: 11px;
-  color: #667257;
+  color: #6c768c;
 }
 .kanban-column-header span {
-  background: #e1e5d8;
+  background: #e0e5ef;
   border-radius: 4px;
   font-size: 9px;
   padding: 2px 6px;
@@ -684,11 +684,11 @@ textarea {
 .candidate-card {
   display: block;
   background: #fff;
-  border: 1px solid #dfe3d6;
+  border: 1px solid #e0e5ef;
   padding: 17px;
   border-radius: 4px;
   margin: 10px 0;
-  color: #69765a;
+  color: #6c768c;
   box-shadow: none;
 }
 .candidate-card:hover {
@@ -697,7 +697,7 @@ textarea {
 }
 .candidate-card h3 {
   font-size: 12px;
-  color: #3f4a35;
+  color: #34415a;
   margin: 12px 0 5px;
 }
 .candidate-card p {
@@ -969,7 +969,7 @@ textarea {
     letter-spacing: 0;
     font-size: 12px;
     font-weight: 500;
-    color: #6c706b;
+    color: #6b7287;
   }
   td {
     padding: 16px 18px;
@@ -997,7 +997,7 @@ textarea {
     letter-spacing: 0;
     font-size: 12px;
     font-weight: 500;
-    color: #6c706b;
+    color: #6b7287;
     padding: 12px 18px;
   }
   .modal-header,
@@ -1060,7 +1060,7 @@ textarea {
   content: ' *';
 }
 :root {
-  --muted: #6c706b;
+  --muted: #6b7287;
 }
 .page-description {
   font-size: 13px;
@@ -1070,11 +1070,11 @@ textarea {
 }
 .panel-header p {
   font-size: 12px;
-  color: #69725f;
+  color: #6c768b;
 }
 th {
   font-size: 12px;
-  color: #6c706b;
+  color: #6b7287;
   text-transform: none;
   letter-spacing: 0;
   font-weight: 500;
@@ -1145,7 +1145,7 @@ textarea {
 }
 .list-item p {
   font-size: 11px;
-  color: #69725f;
+  color: #6c768b;
 }
 .candidate-card h3 {
   font-size: 13px;

@@ -38,9 +38,6 @@ const {
         })
   return { vagas, publicadas, aprovacao, resumo, historico, candidaturas }
 })
-const maiorVolume = computed(() =>
-  Math.max(1, ...(dados.value?.historico.map((mes) => mes.vagasFechadas) || [])),
-)
 const primeiroNome = computed(() => autenticacao.usuario.value?.nome.split(' ')[0] || '')
 const colunas = [
   { chave: 'titulo', titulo: 'Vaga / departamento' },
@@ -54,6 +51,7 @@ const colunas = [
   <SirsCabecalho
     :titulo="`Olá, ${primeiroNome}`"
     descricao="Veja o andamento das vagas e as últimas candidaturas."
+    categoria="PAINEL DE RECRUTAMENTO"
     ><span class="date-pill"
       ><SirsIcone nome="calendar" :tamanho="15" />{{ formatarData(hoje) }}</span
     ><NuxtLink
@@ -156,73 +154,74 @@ const colunas = [
               <span class="period-label">Ano {{ hoje.slice(0, 4) }}</span>
             </div>
             <div class="panel-body">
-              <div class="chart-bars" role="img" aria-label="Vagas fechadas em cada mês do ano">
-                <div v-for="mes in dados.historico" :key="mes.de" class="chart-column">
-                  <strong>{{ mes.vagasFechadas }}</strong>
-                  <div
-                    :style="{ height: `${Math.max(2, (mes.vagasFechadas / maiorVolume) * 72)}px` }"
-                  />
-                  <small>{{
-                    new Intl.DateTimeFormat('pt-BR', { month: 'short' })
-                      .format(new Date(mes.de + 'T12:00:00Z'))
-                      .replace('.', '')
-                  }}</small>
-                </div>
-              </div>
+              <SirsGraficoHistorico
+                :periodos="dados.historico"
+                titulo="Vagas fechadas em cada mês do ano"
+              />
             </div>
           </section>
         </div>
-        <aside class="panel recent-applications">
-          <div class="panel-header">
-            <div>
-              <h2>{{ dados.candidaturas ? 'Últimas candidaturas' : 'Eficiência do processo' }}</h2>
-              <p>
-                {{
-                  dados.candidaturas
-                    ? 'Recebidas mais recentemente.'
-                    : 'Indicadores consolidados do período.'
-                }}
-              </p>
-            </div>
-          </div>
-          <div class="panel-body">
-            <template v-if="dados.candidaturas"
-              ><NuxtLink
-                v-for="candidatura in dados.candidaturas.content"
-                :key="candidatura.identificador"
-                :to="'/candidaturas/' + candidatura.identificador"
-                class="list-item"
-                ><span>{{ iniciais(candidatura.nomeCandidato) }}</span>
-                <div>
-                  <strong>{{ candidatura.nomeCandidato }}</strong>
-                  <p>{{ candidatura.tituloVaga }}</p>
-                </div>
-                <SirsIcone nome="chevron" :tamanho="15" /></NuxtLink
-              ><SirsEstado
-                v-if="!dados.candidaturas.content.length"
-                vazio
-                titulo="Nenhuma candidatura"
-                descricao="As candidaturas recebidas serão listadas aqui." /></template
-            ><template v-else
-              ><div class="list-item">
-                <SirsIcone nome="success" />
-                <div>
-                  <strong>{{ formatarNumero(dados.resumo.percentualNoPrazo, 1) }}% no prazo</strong>
-                  <p>Das vagas consideradas no período</p>
-                </div>
+        <div class="dashboard-aside">
+          <SirsResumoPeriodo :resumo="dados.resumo" />
+          <aside class="panel recent-applications">
+            <div class="panel-header">
+              <div>
+                <h2>
+                  {{ dados.candidaturas ? 'Últimas candidaturas' : 'Eficiência do processo' }}
+                </h2>
+                <p>
+                  {{
+                    dados.candidaturas
+                      ? 'Recebidas mais recentemente.'
+                      : 'Indicadores consolidados do período.'
+                  }}
+                </p>
               </div>
-              <div class="list-item">
-                <SirsIcone nome="calendar" />
-                <div>
-                  <strong>{{ formatarNumero(dados.resumo.mediaDiasAdmissao, 1) }} dias</strong>
-                  <p>Tempo médio até a admissão</p>
+            </div>
+            <div class="panel-body">
+              <template v-if="dados.candidaturas"
+                ><NuxtLink
+                  v-for="candidatura in dados.candidaturas.content"
+                  :key="candidatura.identificador"
+                  :to="'/candidaturas/' + candidatura.identificador"
+                  class="list-item"
+                  ><span>{{ iniciais(candidatura.nomeCandidato) }}</span>
+                  <div>
+                    <strong>{{ candidatura.nomeCandidato }}</strong>
+                    <p>{{ candidatura.tituloVaga }}</p>
+                    <span class="application-stage">{{
+                      candidatura.etapaAtual || 'Sem etapa'
+                    }}</span>
+                  </div>
+                  <SirsIcone nome="chevron" :tamanho="15" /></NuxtLink
+                ><SirsEstado
+                  v-if="!dados.candidaturas.content.length"
+                  vazio
+                  titulo="Nenhuma candidatura"
+                  descricao="As candidaturas recebidas serão listadas aqui." /></template
+              ><template v-else
+                ><div class="list-item">
+                  <SirsIcone nome="success" />
+                  <div>
+                    <strong
+                      >{{ formatarNumero(dados.resumo.percentualNoPrazo, 1) }}% no prazo</strong
+                    >
+                    <p>Das vagas consideradas no período</p>
+                  </div>
                 </div>
-              </div></template
-            >
-          </div>
-          <NuxtLink v-if="dados.candidaturas" to="/candidaturas" class="panel-footer-link"
-            >Todas as candidaturas<SirsIcone nome="next" :tamanho="15"
-          /></NuxtLink>
-        </aside></div></template
+                <div class="list-item">
+                  <SirsIcone nome="calendar" />
+                  <div>
+                    <strong>{{ formatarNumero(dados.resumo.mediaDiasAdmissao, 1) }} dias</strong>
+                    <p>Tempo médio até a admissão</p>
+                  </div>
+                </div></template
+              >
+            </div>
+            <NuxtLink v-if="dados.candidaturas" to="/candidaturas" class="panel-footer-link"
+              >Todas as candidaturas<SirsIcone nome="next" :tamanho="15"
+            /></NuxtLink>
+          </aside>
+        </div></div></template
   ></SirsEstado>
 </template>

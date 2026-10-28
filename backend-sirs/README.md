@@ -276,3 +276,14 @@ A suite integrada limpa as tabelas desse banco entre cenarios. Sem `SIRS_TEST_DB
 As respostas de erro seguem `application/problem+json`, com identificador de requisicao e erros por campo quando aplicavel. Codigos principais: 400 entrada invalida, 401 autenticacao, 403 autorizacao, 404 recurso inexistente, 409 conflito de unicidade/concorrencia e 422 regra de negocio.
 
 Referencias de compatibilidade: [Spring Boot](https://docs.spring.io/spring-boot/system-requirements.html), [Springdoc](https://springdoc.org/).
+
+### Schema compartilhado por JDBC, JPA e Flyway
+
+A configuração comum define `sirs` para o `currentSchema` das conexões Hikari,
+para o Hibernate e para o Flyway. Isso vale também para o perfil `test`: consultas
+JDBC sem prefixo de schema e consultas JPA devem acessar as mesmas tabelas.
+Os testes integrados usam exclusivamente o banco descartável `sirs_test`,
+indicado por `SIRS_TEST_DB_URL`, e desativam a leitura do `.env` local.
+Uma regressão integrada verifica a resolução de `usuario` para `sirs.usuario`.
+O teste das migrations verifica as versões SQL obrigatórias de V1 a V4, sem contar
+registros administrativos de criação de schema nem a V5 exclusiva do Supabase.

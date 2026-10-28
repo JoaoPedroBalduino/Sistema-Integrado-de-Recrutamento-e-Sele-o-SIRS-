@@ -82,6 +82,15 @@ class FluxoRecrutamentoIT {
     canalId = cadastrarApoio("canais", "Portal de carreiras");
   }
 
+  @Test
+  void consultasJdbcUsamOMesmoSchemaPrivadoDaPersistencia() {
+    assertEquals("sirs", bancoDados.queryForObject("select current_schema()", String.class));
+    assertEquals(
+        Boolean.TRUE,
+        bancoDados.queryForObject(
+            "select to_regclass('usuario') = to_regclass('sirs.usuario')", Boolean.class));
+  }
+
   private Long cadastrarUsuarioDiretamente(String nome, String perfil) {
     return bancoDados.queryForObject(
         "insert into usuario(nome,email,senha_hash,perfil) values (?,?,?,?) returning id",
@@ -250,9 +259,11 @@ class FluxoRecrutamentoIT {
     executar(get("/api/v1/rota-inexistente"), coordenador, null, 404);
     executar(get("/api/v1/vagas?sort=senhaHash,asc"), coordenador, null, 400);
     assertEquals(
-        4,
-        bancoDados.queryForObject(
-            "select count(*) from flyway_schema_history where success", Integer.class));
+        List.of("1", "2", "3", "4"),
+        bancoDados.queryForList(
+            "select version from flyway_schema_history where success and type = 'SQL'"
+                + " and version in ('1', '2', '3', '4') order by installed_rank",
+            String.class));
   }
 
   @Test

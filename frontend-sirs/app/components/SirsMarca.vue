@@ -25,8 +25,8 @@ withDefaults(defineProps<{ variante?: 'horizontal' | 'simbolo' }>(), { variante:
   align-items: center;
   justify-content: center;
   width: 100%;
-  padding: 10px;
-  border-radius: 10px;
+  padding: 0;
+  border-radius: 0;
   background: #fff;
   flex-shrink: 0;
 }

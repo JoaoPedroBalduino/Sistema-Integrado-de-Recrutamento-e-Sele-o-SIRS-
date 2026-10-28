@@ -179,25 +179,18 @@ async function excluir() {
           titulo="Posições"
           :valor="data.vaga.posicoes"
           descricao="Oportunidades nesta vaga"
-          icone="briefcase"
         /><SirsMetrica
           titulo="Candidaturas"
           :valor="data.vaga.candidatos"
           descricao="Talentos no processo seletivo"
-          icone="users"
-          cor="blue"
         /><SirsMetrica
           titulo="Contratações"
           :valor="data.vaga.posicoesPreenchidas"
           descricao="Posições já preenchidas"
-          icone="success"
-          cor="green"
         /><SirsMetrica
           titulo="Prazo alvo"
           :valor="`${data.vaga.prazoAlvoDias} dias`"
           :descricao="'Abertura em ' + formatarData(data.vaga.dataAbertura)"
-          icone="calendar"
-          cor="orange"
         />
       </div>
       <div class="section-tabs" role="tablist" aria-label="Detalhes da vaga">

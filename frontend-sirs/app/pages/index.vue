@@ -42,7 +42,6 @@ const maiorVolume = computed(() =>
   Math.max(1, ...(dados.value?.historico.map((mes) => mes.vagasFechadas) || [])),
 )
 const primeiroNome = computed(() => autenticacao.usuario.value?.nome.split(' ')[0] || '')
-const saudacao = 'Olá'
 const colunas = [
   { chave: 'titulo', titulo: 'Vaga / departamento' },
   { chave: 'status', titulo: 'Status' },
@@ -53,9 +52,8 @@ const colunas = [
 </script>
 <template>
   <SirsCabecalho
-    :titulo="`${saudacao}, ${primeiroNome}`"
-    descricao="Acompanhe vagas, candidaturas e resultados do recrutamento."
-    categoria="SEU DIA, MAIS ORGANIZADO"
+    :titulo="`Olá, ${primeiroNome}`"
+    descricao="Veja o andamento das vagas e as últimas candidaturas."
     ><span class="date-pill"
       ><SirsIcone nome="calendar" :tamanho="15" />{{ formatarData(hoje) }}</span
     ><NuxtLink
@@ -68,7 +66,7 @@ const colunas = [
   <div v-if="autenticacao.usuario.value?.perfil === 'AVALIADOR'" class="panel">
     <SirsEstado
       vazio
-      titulo="Seu olhar faz a diferença"
+      titulo="Avaliações designadas"
       descricao="Acesse as candidaturas designadas para consultar as fichas e registrar suas avaliações."
       ><template #acao
         ><NuxtLink to="/candidaturas" class="button primary"
@@ -81,26 +79,19 @@ const colunas = [
         <SirsMetrica
           titulo="Vagas publicadas"
           :valor="formatarNumero(dados.publicadas.totalElements)"
-          descricao="Publicadas e recebendo candidaturas"
-          icone="briefcase"
+          descricao="Recebendo candidaturas"
         /><SirsMetrica
           titulo="Vagas em aprovação"
           :valor="formatarNumero(dados.aprovacao.totalElements)"
-          descricao="Aguardando o próximo passo"
-          icone="history"
-          cor="orange"
+          descricao="Aguardando aprovação"
         /><SirsMetrica
           titulo="Vagas fechadas"
           :valor="formatarNumero(dados.resumo.vagasFechadas)"
-          descricao="Fechadas no período selecionado"
-          icone="success"
-          cor="green"
+          descricao="No ano atual"
         /><SirsMetrica
           titulo="Custo por vaga"
           :valor="formatarMoeda(dados.resumo.custoPorVagaFechada)"
-          descricao="Média das vagas fechadas no ano"
-          icone="wallet"
-          cor="blue"
+          descricao="Média das vagas fechadas"
         />
       </div>
       <div v-if="dados.aprovacao.totalElements" class="summary-strip">
@@ -110,83 +101,85 @@ const colunas = [
             {{ dados.aprovacao.totalElements === 1 ? 'vaga aguarda' : 'vagas aguardam' }}
             aprovação.</strong
           >
-          A próxima oportunidade pode começar com a sua decisão.</span
+          Confira as solicitações pendentes.</span
         ><NuxtLink to="/vagas?status=EM_APROVACAO" class="text-link"
           >Revisar vagas<SirsIcone nome="next" :tamanho="14"
         /></NuxtLink>
       </div>
-      <section class="panel">
-        <div class="panel-header">
-          <div>
-            <h2>Vagas recentes</h2>
-            <p>Acompanhe as oportunidades e seus próximos passos.</p>
-          </div>
-          <NuxtLink to="/vagas">Ver todas<SirsIcone nome="external" :tamanho="14" /></NuxtLink>
-        </div>
-        <SirsEstado
-          :vazio="!dados.vagas.content.length"
-          titulo="Vamos abrir novas oportunidades?"
-          descricao="Quando a primeira vaga for criada, ela aparecerá aqui."
-        /><SirsTabela
-          v-if="dados.vagas.content.length"
-          :registros="dados.vagas.content"
-          :colunas="colunas"
-          legenda="Vagas recentes"
-          ><template #celula-titulo="{ registro }"
-            ><NuxtLink :to="'/vagas/' + registro.identificador" class="table-primary">{{
-              registro.titulo
-            }}</NuxtLink
-            ><small
-              >{{ registro.area.nome }} ·
-              {{ registro.remoto ? 'Remoto' : registro.cidade || 'Local não informado' }}</small
-            ></template
-          ><template #celula-status="{ registro }"><SirsBadge :valor="registro.status" /></template
-          ><template #celula-candidatos="{ registro }"
-            ><strong>{{ registro.candidatos }}</strong> candidatos</template
-          ><template #celula-prazo="{ registro }">{{
-            formatarData(registro.dataAbertura)
-          }}</template
-          ><template #celula-acao="{ registro }"
-            ><NuxtLink
-              :to="'/vagas/' + registro.identificador"
-              class="icon-button"
-              :aria-label="'Abrir vaga ' + registro.titulo"
-              ><SirsIcone nome="chevron" :tamanho="16" /></NuxtLink></template
-        ></SirsTabela>
-      </section>
-      <div class="dashboard-bottom">
-        <section class="panel">
-          <div class="panel-header">
-            <div>
-              <h2>Vagas fechadas por mês</h2>
-              <p>Vagas fechadas por mês · {{ hoje.slice(0, 4) }}</p>
+      <div class="dashboard-workspace">
+        <div class="dashboard-main">
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Vagas recentes</h2>
+                <p>Últimas vagas cadastradas.</p>
+              </div>
+              <NuxtLink to="/vagas">Todas as vagas<SirsIcone nome="next" :tamanho="14" /></NuxtLink>
             </div>
-            <span class="badge">Anual</span>
-          </div>
-          <div class="panel-body">
-            <div class="chart-bars" role="img" aria-label="Vagas fechadas em cada mês do ano">
-              <div v-for="mes in dados.historico" :key="mes.de" class="chart-column">
-                <strong>{{ mes.vagasFechadas }}</strong>
-                <div
-                  :style="{ height: `${Math.max(2, (mes.vagasFechadas / maiorVolume) * 120)}px` }"
-                />
-                <small>{{
-                  new Intl.DateTimeFormat('pt-BR', { month: 'short' })
-                    .format(new Date(mes.de + 'T12:00:00Z'))
-                    .replace('.', '')
-                }}</small>
+            <SirsEstado
+              :vazio="!dados.vagas.content.length"
+              titulo="Nenhuma vaga cadastrada"
+              descricao="Cadastre uma vaga para iniciar o processo seletivo."
+            /><SirsTabela
+              v-if="dados.vagas.content.length"
+              :registros="dados.vagas.content"
+              :colunas="colunas"
+              legenda="Vagas recentes"
+              ><template #celula-titulo="{ registro }"
+                ><NuxtLink :to="'/vagas/' + registro.identificador" class="table-primary">{{
+                  registro.titulo
+                }}</NuxtLink
+                ><small
+                  >{{ registro.area.nome }} ·
+                  {{ registro.remoto ? 'Remoto' : registro.cidade || 'Local não informado' }}</small
+                ></template
+              ><template #celula-status="{ registro }"
+                ><SirsBadge :valor="registro.status" /></template
+              ><template #celula-candidatos="{ registro }"
+                ><strong>{{ registro.candidatos }}</strong> candidatos</template
+              ><template #celula-prazo="{ registro }">{{
+                formatarData(registro.dataAbertura)
+              }}</template
+              ><template #celula-acao="{ registro }"
+                ><NuxtLink
+                  :to="'/vagas/' + registro.identificador"
+                  class="icon-button"
+                  :aria-label="'Abrir vaga ' + registro.titulo"
+                  ><SirsIcone nome="chevron" :tamanho="16" /></NuxtLink></template
+            ></SirsTabela>
+          </section>
+          <section class="panel history-panel">
+            <div class="panel-header">
+              <div>
+                <h2>Vagas fechadas por mês</h2>
+              </div>
+              <span class="period-label">Ano {{ hoje.slice(0, 4) }}</span>
+            </div>
+            <div class="panel-body">
+              <div class="chart-bars" role="img" aria-label="Vagas fechadas em cada mês do ano">
+                <div v-for="mes in dados.historico" :key="mes.de" class="chart-column">
+                  <strong>{{ mes.vagasFechadas }}</strong>
+                  <div
+                    :style="{ height: `${Math.max(2, (mes.vagasFechadas / maiorVolume) * 72)}px` }"
+                  />
+                  <small>{{
+                    new Intl.DateTimeFormat('pt-BR', { month: 'short' })
+                      .format(new Date(mes.de + 'T12:00:00Z'))
+                      .replace('.', '')
+                  }}</small>
+                </div>
               </div>
             </div>
-          </div>
-        </section>
-        <section class="panel">
+          </section>
+        </div>
+        <aside class="panel recent-applications">
           <div class="panel-header">
             <div>
               <h2>{{ dados.candidaturas ? 'Últimas candidaturas' : 'Eficiência do processo' }}</h2>
               <p>
                 {{
                   dados.candidaturas
-                    ? 'Pessoas dando o próximo passo.'
+                    ? 'Recebidas mais recentemente.'
                     : 'Indicadores consolidados do período.'
                 }}
               </p>
@@ -208,8 +201,8 @@ const colunas = [
               ><SirsEstado
                 v-if="!dados.candidaturas.content.length"
                 vazio
-                titulo="Tudo pronto para receber talentos"
-                descricao="Novas candidaturas aparecerão por aqui." /></template
+                titulo="Nenhuma candidatura"
+                descricao="As candidaturas recebidas serão listadas aqui." /></template
             ><template v-else
               ><div class="list-item">
                 <SirsIcone nome="success" />
@@ -227,8 +220,9 @@ const colunas = [
               </div></template
             >
           </div>
-        </section>
-      </div></template
-    ></SirsEstado
-  >
+          <NuxtLink v-if="dados.candidaturas" to="/candidaturas" class="panel-footer-link"
+            >Todas as candidaturas<SirsIcone nome="next" :tamanho="15"
+          /></NuxtLink>
+        </aside></div></template
+  ></SirsEstado>
 </template>

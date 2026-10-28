@@ -99,25 +99,18 @@ function exportar() {
           titulo="Vagas fechadas"
           :valor="formatarNumero(data.resumo.vagasFechadas)"
           descricao="Concluídas no período"
-          icone="success"
-          cor="green"
         /><SirsMetrica
           titulo="Fechadas no prazo"
           :valor="formatarNumero(data.resumo.percentualNoPrazo, 1) + '%'"
           :descricao="'Meta: ' + (data.resumo.metasVigentes.VAGAS_NO_PRAZO ?? '—') + '%'"
-          icone="calendar"
         /><SirsMetrica
           titulo="Custo por vaga"
           :valor="formatarMoeda(data.resumo.custoPorVagaFechada)"
           descricao="Média das vagas fechadas"
-          icone="wallet"
-          cor="blue"
         /><SirsMetrica
           titulo="Tempo até a admissão"
           :valor="formatarNumero(data.resumo.mediaDiasAdmissao, 1) + ' dias'"
           descricao="Média das contratações no período"
-          icone="history"
-          cor="orange"
         />
       </div>
       <section class="panel">

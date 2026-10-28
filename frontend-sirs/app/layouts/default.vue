@@ -43,11 +43,6 @@ async function sair() {
     <div v-if="menuAberto" class="sidebar-overlay" @click="menuAberto = false" />
     <aside class="sidebar" :class="{ 'is-open': menuAberto }">
       <NuxtLink to="/" class="brand" aria-label="SIRS · Página inicial"><SirsMarca /></NuxtLink>
-      <div class="workspace-label">
-        <span class="workspace-avatar"><SirsIcone nome="building" :tamanho="17" /></span
-        ><span>Espaço de trabalho<small>Gestão de pessoas</small></span
-        ><span class="connection-dot" />
-      </div>
       <nav aria-label="Navegação principal">
         <template v-for="(item, indice) in links" :key="item.caminho"
           ><p v-if="indice === 0 || item.grupo !== links[indice - 1]?.grupo" class="nav-section">
@@ -59,16 +54,11 @@ async function sair() {
             :class="{
               active: item.caminho === '/' ? rota.path === '/' : rota.path.startsWith(item.caminho),
             }"
-            ><SirsIcone :nome="item.icone" />{{ item.titulo
-            }}<span v-if="item.caminho === rota.path" class="active-mark" /></NuxtLink
-        ></template>
+            ><SirsIcone :nome="item.icone" />{{ item.titulo }}</NuxtLink
+          ></template
+        >
       </nav>
       <div class="sidebar-bottom">
-        <div class="sidebar-note">
-          <SirsIcone nome="shield" :tamanho="18" /><span
-            >Dados protegidos<small>Acesso por perfil e responsabilidade</small></span
-          >
-        </div>
         <NuxtLink to="/conta" class="user-card"
           ><span class="avatar">{{ iniciais(autenticacao.usuario.value?.nome || '') }}</span
           ><span class="user-information"
@@ -88,7 +78,7 @@ async function sair() {
             @click="menuAberto = !menuAberto"
           >
             <SirsIcone nome="menu" /></button
-          ><span class="breadcrumb-home">Recrutamento</span
+          ><span class="breadcrumb-home">Equipe de recrutamento</span
           ><SirsIcone nome="chevron" :tamanho="14" /><strong>{{ tituloAtual }}</strong>
         </div>
         <div class="topbar-actions">
@@ -107,7 +97,7 @@ async function sair() {
       </header>
       <main id="conteudo-principal" class="page-content"><slot /></main>
       <footer class="application-footer">
-        <span>SIRS · Recrutamento e seleção</span><span>Acesso por perfil e responsabilidade.</span>
+        <span>SIRS · Recrutamento e seleção</span><NuxtLink to="/conta">Minha conta</NuxtLink>
       </footer>
     </div>
     <SirsModal :aberto="buscaAberta" titulo="Ir para uma página" @fechar="buscaAberta = false"

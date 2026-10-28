@@ -35,6 +35,8 @@ import {
   RefreshCw,
   FileText,
   CheckCircle2,
+  Eye,
+  EyeOff,
 } from '@lucide/vue'
 defineProps<{ nome: string; tamanho?: number }>()
 const icones = {
@@ -73,6 +75,8 @@ const icones = {
   refresh: RefreshCw,
   file: FileText,
   success: CheckCircle2,
+  eye: Eye,
+  eyeOff: EyeOff,
 }
 </script>
 <template>

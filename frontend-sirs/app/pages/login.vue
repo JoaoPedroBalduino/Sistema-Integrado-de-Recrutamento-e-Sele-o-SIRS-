@@ -5,10 +5,14 @@ useHead({ title: 'Entrar' })
 const email = ref('')
 const senha = ref('')
 const mostrarSenha = ref(false)
+const maiusculasAtivadas = ref(false)
 const entrando = ref(false)
 const erro = ref('')
 const autenticacao = useAutenticacao()
 const rota = useRoute()
+function verificarMaiusculas(evento: KeyboardEvent) {
+  maiusculasAtivadas.value = evento.getModifierState('CapsLock')
+}
 async function entrar() {
   entrando.value = true
   erro.value = ''
@@ -25,81 +29,119 @@ async function entrar() {
 </script>
 <template>
   <div class="login-page">
-    <section class="login-story">
+    <header class="login-header">
       <div class="brand"><SirsMarca /></div>
-      <div class="login-story-body">
-        <span class="login-eyebrow"><span class="connection-dot" />GESTÃO DE RECRUTAMENTO</span>
-        <h1>Recrutamento organizado.<br /><span>Decisões mais claras.</span></h1>
-        <p>
-          Organize seus processos, acompanhe talentos e transforme dados em decisões. Tudo em um só
-          lugar.
-        </p>
-        <div class="login-feature">
-          <span><SirsIcone nome="kanban" :tamanho="22" /></span>
-          <div>
-            <strong>Processos mais claros</strong>
-            <p>Da abertura da vaga à contratação.</p>
+      <span>Acesso da equipe</span>
+    </header>
+    <main class="login-main">
+      <section class="login-form-panel" aria-labelledby="titulo-login">
+        <div class="login-form-inner">
+          <p class="login-access-label"><SirsIcone nome="lock" :tamanho="14" />Acesso ao SIRS</p>
+          <h1 id="titulo-login">Entre na sua conta</h1>
+          <p class="login-subtitle">Use o e-mail cadastrado pela sua equipe.</p>
+          <div v-if="rota.query.expirada" class="inline-alert">
+            Sua sessão expirou. Entre novamente.
           </div>
-        </div>
-      </div>
-      <div class="login-story-footer">
-        <span>Recrutamento e seleção</span><span>SIRS {{ new Date().getFullYear() }}</span>
-      </div>
-    </section>
-    <section class="login-form-panel">
-      <div class="login-form-inner">
-        <span class="login-form-icon"><SirsIcone nome="shield" :tamanho="26" /></span>
-        <p class="eyebrow">BEM-VINDO AO SIRS</p>
-        <h2>Entre na sua conta</h2>
-        <p class="login-subtitle">Entre com sua conta para continuar.</p>
-        <div v-if="rota.query.expirada" class="inline-alert">
-          Sua sessão expirou. Entre novamente.
-        </div>
-        <div v-if="erro" class="inline-alert" role="alert">{{ erro }}</div>
-        <form @submit.prevent="entrar">
-          <div class="field">
-            <label for="email">E-mail corporativo</label
-            ><input
-              id="email"
-              v-model="email"
-              type="email"
-              autocomplete="username"
-              required
-              maxlength="255"
-              placeholder="voce@empresa.com.br"
-            />
-          </div>
-          <div class="field">
-            <label for="senha">Senha</label>
-            <div class="password-input">
-              <input
-                id="senha"
-                v-model="senha"
-                :type="mostrarSenha ? 'text' : 'password'"
-                autocomplete="current-password"
+          <div v-if="erro" class="inline-alert" role="alert">{{ erro }}</div>
+          <form @submit.prevent="entrar">
+            <div class="field">
+              <label for="email">E-mail corporativo</label
+              ><input
+                id="email"
+                v-model="email"
+                type="email"
+                autocomplete="username"
+                inputmode="email"
+                :spellcheck="false"
+                autocapitalize="none"
                 required
-                maxlength="72"
-                placeholder="Digite sua senha"
-              /><button
-                type="button"
-                :aria-label="mostrarSenha ? 'Ocultar senha' : 'Mostrar senha'"
-                @click="mostrarSenha = !mostrarSenha"
-              >
-                {{ mostrarSenha ? 'Ocultar' : 'Mostrar' }}
-              </button>
+                maxlength="255"
+                placeholder="voce@empresa.com.br"
+              />
             </div>
-          </div>
-          <button class="button primary login-submit" :disabled="entrando">
-            <SirsIcone v-if="entrando" nome="loading" class="spin" :tamanho="18" />{{
-              entrando ? 'Entrando…' : 'Entrar'
-            }}<SirsIcone v-if="!entrando" nome="next" :tamanho="18" />
-          </button>
-        </form>
-        <p class="login-help">
-          <SirsIcone nome="help" :tamanho="16" />Problemas para acessar? Fale com o administrador.
+            <div class="field">
+              <label for="senha">Senha</label>
+              <div class="password-input">
+                <input
+                  id="senha"
+                  v-model="senha"
+                  :type="mostrarSenha ? 'text' : 'password'"
+                  autocomplete="current-password"
+                  required
+                  maxlength="72"
+                  placeholder="Digite sua senha"
+                  :aria-describedby="maiusculasAtivadas ? 'aviso-maiusculas' : undefined"
+                  @keydown="verificarMaiusculas"
+                  @keyup="verificarMaiusculas"
+                  @blur="maiusculasAtivadas = false"
+                /><button
+                  type="button"
+                  :aria-label="mostrarSenha ? 'Ocultar senha' : 'Mostrar senha'"
+                  :aria-pressed="mostrarSenha"
+                  @click="mostrarSenha = !mostrarSenha"
+                >
+                  <SirsIcone :nome="mostrarSenha ? 'eyeOff' : 'eye'" :tamanho="18" />
+                </button>
+              </div>
+            </div>
+            <p
+              v-if="maiusculasAtivadas"
+              id="aviso-maiusculas"
+              class="login-caps-lock"
+              role="status"
+            >
+              <SirsIcone nome="alert" :tamanho="14" />Caps Lock ativado
+            </p>
+            <button class="button primary login-submit" :disabled="entrando">
+              <SirsIcone v-if="entrando" nome="loading" class="spin" :tamanho="18" />{{
+                entrando ? 'Entrando…' : 'Entrar'
+              }}<SirsIcone v-if="!entrando" nome="next" :tamanho="18" />
+            </button>
+          </form>
+
+          <p class="login-help">Precisa de acesso? Fale com o administrador da sua equipe.</p>
+        </div>
+      </section>
+      <aside class="login-context" aria-labelledby="titulo-processo">
+        <div class="login-context-heading">
+          <span class="login-context-rule" />
+          <p class="login-section-label">O processo, de ponta a ponta</p>
+        </div>
+        <h2 id="titulo-processo">Da vaga<br />à admissão<span>.</span></h2>
+        <p class="login-context-intro">Um processo por vaga. Cada candidatura com seu histórico.</p>
+        <ol class="login-process" aria-label="Etapas de um processo seletivo">
+          <li>
+            <span class="login-step-marker"><SirsIcone nome="briefcase" :tamanho="18" /></span>
+            <div>
+              <h3>Defina a vaga</h3>
+              <p>Requisitos, responsáveis e prazos.</p>
+            </div>
+            <span class="login-step-number">01</span>
+          </li>
+          <li>
+            <span class="login-step-marker"><SirsIcone nome="users" :tamanho="18" /></span>
+            <div>
+              <h3>Acompanhe as candidaturas</h3>
+              <p>Entrevistas e avaliações por etapa.</p>
+            </div>
+            <span class="login-step-number">02</span>
+          </li>
+          <li>
+            <span class="login-step-marker"><SirsIcone nome="check" :tamanho="18" /></span>
+            <div>
+              <h3>Registre a contratação</h3>
+              <p>Proposta, admissão e custos.</p>
+            </div>
+            <span class="login-step-number">03</span>
+          </li>
+        </ol>
+        <p class="login-context-note">
+          Seu perfil define as informações e ações disponíveis no sistema.
         </p>
-        <div class="login-secure"><SirsIcone nome="lock" :tamanho="14" />Sessão protegida</div>
-      </div>
-    </section>
+      </aside>
+    </main>
+    <footer class="login-footer">
+      <span>SIRS · Recrutamento e seleção</span><span>{{ new Date().getFullYear() }}</span>
+    </footer>
   </div>
 </template>

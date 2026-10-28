@@ -80,19 +80,14 @@ const formulario = useFormulario(
           titulo="Investimento total"
           :valor="formatarMoeda(data.total)"
           descricao="Estimativa consolidada da vaga"
-          icone="wallet"
         /><SirsMetrica
           titulo="Horas e pessoas"
           :valor="formatarMoeda(data.custoHoras)"
           descricao="Custo da dedicação às etapas"
-          icone="users"
-          cor="blue"
         /><SirsMetrica
           titulo="Investimentos diretos"
           :valor="formatarMoeda(data.investimentosDiretos)"
           descricao="Kit e divulgação conforme parâmetros"
-          icone="briefcase"
-          cor="green"
         /><SirsMetrica
           titulo="Dedicação estimada"
           :valor="
@@ -102,8 +97,6 @@ const formulario = useFormulario(
             ) + ' h'
           "
           descricao="Soma das horas de todas as etapas"
-          icone="history"
-          cor="orange"
         />
       </div>
       <section class="panel">

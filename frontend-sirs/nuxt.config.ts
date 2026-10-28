@@ -1,7 +1,7 @@
 export default defineNuxtConfig({
   compatibilityDate: '2026-10-28',
   devtools: { enabled: false },
-  css: ['@fontsource-variable/inter', '~/assets/css/main.css'],
+  css: ['@fontsource-variable/inter', '~/assets/css/main.css', '~/assets/css/workspace.css'],
   runtimeConfig: {
     backendBaseUrl: 'http://127.0.0.1:8080/api/v1',
     sessionSecret: '',

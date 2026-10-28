@@ -29,7 +29,7 @@ const colunas = [
 <template>
   <SirsCabecalho
     titulo="Vagas"
-    descricao="Cada oportunidade é o começo de uma nova conexão."
+    descricao="Consulte as vagas, acompanhe os status e abra novos processos."
     categoria="RECRUTAMENTO"
     ><NuxtLink
       v-if="autenticacao.permite(perfisEdicaoVagas)"
@@ -52,8 +52,7 @@ const colunas = [
   <section class="panel">
     <div class="panel-header">
       <h2>
-        Oportunidades
-        {{ statusSelecionado ? nomesStatus[statusSelecionado]?.toLowerCase() : 'da equipe' }}
+        {{ statusSelecionado ? nomesStatus[statusSelecionado] : 'Todas as vagas' }}
       </h2>
       <span class="badge">{{ data?.totalElements || 0 }} vagas</span>
     </div>
@@ -61,8 +60,8 @@ const colunas = [
       :carregando="status === 'pending'"
       :erro="error"
       :vazio="!data?.content.length"
-      titulo="Nenhuma vaga por aqui"
-      descricao="Crie uma nova oportunidade ou escolha outro filtro."
+      titulo="Nenhuma vaga encontrada"
+      descricao="Cadastre uma vaga ou altere o filtro de status."
       @tentar="refresh"
       ><SirsTabela :registros="data?.content || []" :colunas="colunas" legenda="Vagas da equipe"
         ><template #celula-titulo="{ registro }"

@@ -50,10 +50,7 @@ async function entrar() {
           <p class="login-access-label"><SirsIcone nome="lock" :tamanho="14" />Acesso ao SIRS</p>
           <h1 id="titulo-login">Entre na sua conta</h1>
           <p class="login-subtitle">Use o e-mail cadastrado pela sua equipe.</p>
-          <div v-if="rota.query.expirada" class="inline-alert">
-            Sua sessão expirou. Entre novamente.
-          </div>
-          <div v-if="erro" class="inline-alert" role="alert">{{ erro }}</div>
+          <SirsNotificacoes junto-ao-formulario />
           <form @submit.prevent="entrar">
             <div class="field">
               <label for="email">E-mail corporativo</label

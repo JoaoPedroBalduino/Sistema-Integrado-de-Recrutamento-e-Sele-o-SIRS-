@@ -126,12 +126,16 @@ A identidade usa índigo e superfícies em camadas, mantendo uma única faixa de
 
 `SirsGraficoHistorico` é compartilhado entre o painel e os indicadores, com escala calculada a partir dos valores, meses identificados, linhas de referência e tabela equivalente para leitores de tela. Percentuais visuais são limitados entre 0 e 100; os valores de origem permanecem inalterados.
 
-## Modais de mensagens
+## Mensagens do sistema
 
-`useNotificacoes().adicionar(texto, tipo, tituloOpcional)` aceita `informacao`, `sucesso`, `erro` e `alerta`. Os avisos aparecem em um diálogo global (`SirsMensagem`), um de cada vez, sem expiração automática. Mensagens idênticas pendentes não são duplicadas. Os ícones são Lucide, e o conteúdo é sempre texto, sem HTML recebido da API.
+`useNotificacoes().adicionar(texto, tipo, tituloOpcional)` aceita `informacao`, `sucesso`, `erro` e `alerta`. Os avisos aparecem sem bloquear a tela (`SirsMensagem`), no canto superior direito ou junto aos campos de login. Mensagens idênticas pendentes não são duplicadas. Os ícones são Lucide, e o conteúdo é sempre texto, sem HTML recebido da API.
 
-Os modais fecham pelo botão Entendi, pelo botão de fechar, por Escape ou pelo fundo. O foco fica contido pelo diálogo nativo e retorna à ação anterior quando ela continua disponível. Erros e alertas usam `alertdialog`, com título e descrição associados.
+As mensagens não usam diálogo modal nem alteram o foco. Cada aviso tem um botão de fechar e um estado acessível (`alert` para erros e alertas, `status` para informações e sucesso).
 
 Salvamentos, avaliações e demais notificações existentes usam o novo componente. Falhas de login, sessão expirada, erros do formulário e a explicação de permissões em Minha conta também foram integrados. Os erros de campos continuam disponíveis no formulário após fechar o aviso, sem perder os valores digitados. Se a gravação funcionar e apenas a atualização da lista falhar, o sistema informa que os dados já foram salvos.
 
 O login confirmado exibe “Login realizado” depois do redirecionamento ao destino solicitado. O logout confirmado exibe “Sessão encerrada” na tela de acesso. Falhas seguem o fluxo de erro, sem emitir confirmação de sucesso. As mensagens não reaparecem ao recarregar a página.
+
+### Mensagens sem interrupção
+
+Erros, alertas e confirmações aparecem no canto superior direito, sem bloquear a navegação nem mudar o foco. Na tela de login, ficam junto aos campos. Avisos de sucesso no canto desaparecem após oito segundos, pausando enquanto o ponteiro ou foco está no aviso; erros e alertas permanecem até serem fechados.

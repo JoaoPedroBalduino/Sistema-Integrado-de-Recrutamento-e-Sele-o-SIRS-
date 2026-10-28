@@ -29,9 +29,9 @@ test('mantém a marca visível e proporcional no menu', async ({ page }) => {
   await page.getByLabel('E-mail corporativo').fill('coordenacao@exemplo.test')
   await page.getByLabel('Senha', { exact: true }).fill('SenhaTesteFrontend123!')
   await page.getByRole('button', { name: 'Entrar', exact: true }).click()
-  const confirmacao = page.getByRole('dialog', { name: 'Login realizado', exact: true })
+  const confirmacao = page.getByRole('status', { name: 'Login realizado', exact: true })
   await expect(confirmacao).toBeVisible()
-  await confirmacao.getByRole('button', { name: 'Entendi', exact: true }).click()
+  await confirmacao.getByRole('button', { name: 'Fechar mensagem', exact: true }).click()
 
   await expect(page.getByRole('button', { name: 'Sair da conta', exact: true })).toBeVisible()
   const abrir = page.getByRole('button', { name: 'Abrir menu' })
@@ -54,9 +54,9 @@ test('organiza vagas e candidaturas por prioridade em cada tamanho de tela', asy
   await page.getByLabel('E-mail corporativo').fill('coordenacao@exemplo.test')
   await page.getByLabel('Senha', { exact: true }).fill('SenhaTesteFrontend123!')
   await page.getByRole('button', { name: 'Entrar', exact: true }).click()
-  const confirmacao = page.getByRole('dialog', { name: 'Login realizado', exact: true })
+  const confirmacao = page.getByRole('status', { name: 'Login realizado', exact: true })
   await expect(confirmacao).toBeVisible()
-  await confirmacao.getByRole('button', { name: 'Entendi', exact: true }).click()
+  await confirmacao.getByRole('button', { name: 'Fechar mensagem', exact: true }).click()
 
   await expect(page.getByRole('heading', { name: /Marina/ })).toBeVisible()
   await expect(

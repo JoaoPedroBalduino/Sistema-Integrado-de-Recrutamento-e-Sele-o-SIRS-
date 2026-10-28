@@ -5,17 +5,17 @@ async function entrar(pagina: Page, email = 'coordenacao@exemplo.test') {
   await pagina.getByLabel('E-mail corporativo').fill(email)
   await pagina.getByLabel('Senha', { exact: true }).fill(senha)
   await pagina.getByRole('button', { name: 'Entrar', exact: true }).click()
-  const confirmacao = pagina.getByRole('dialog', { name: 'Login realizado', exact: true })
+  const confirmacao = pagina.getByRole('status', { name: 'Login realizado', exact: true })
   await expect(confirmacao).toBeVisible()
-  await confirmacao.getByRole('button', { name: 'Entendi', exact: true }).click()
+  await confirmacao.getByRole('button', { name: 'Fechar mensagem', exact: true }).click()
 
   await expect(pagina).toHaveURL(/\/$/)
   await expect(pagina.getByRole('button', { name: 'Sair da conta', exact: true })).toBeVisible()
 }
 async function fecharSucesso(pagina: Page) {
-  const mensagem = pagina.locator('.message-dialog[data-tipo="sucesso"]')
+  const mensagem = pagina.locator('.message-notice[data-tipo="sucesso"]')
   await expect(mensagem).toBeVisible()
-  await mensagem.getByRole('button', { name: 'Entendi', exact: true }).click()
+  await mensagem.getByRole('button', { name: 'Fechar mensagem', exact: true }).click()
   await expect(mensagem).toHaveCount(0)
 }
 async function navegar(pagina: Page, titulo: string) {
@@ -41,8 +41,11 @@ test('mostra erro de credenciais e permite tentar novamente', async ({ page }) =
   await page.getByLabel('E-mail corporativo').fill('coordenacao@exemplo.test')
   await page.getByLabel('Senha', { exact: true }).fill('senha-incorreta')
   await page.getByRole('button', { name: 'Entrar', exact: true }).click()
-  await expect(page.getByRole('alertdialog')).toContainText('Credenciais inválidas')
-  await page.getByRole('alertdialog').getByRole('button', { name: 'Entendi', exact: true }).click()
+  await expect(page.getByRole('alert')).toContainText('Credenciais inválidas')
+  await page
+    .getByRole('alert')
+    .getByRole('button', { name: 'Fechar mensagem', exact: true })
+    .click()
   await expect(page.getByLabel('Senha', { exact: true })).toHaveValue('')
 })
 
@@ -113,9 +116,14 @@ test('salva cadastro, trata erro de negócio e permite edição', async ({ page 
   await page.getByRole('button', { name: 'Novo registro', exact: true }).click()
   await page.getByLabel('Nome', { exact: true }).fill('Duplicado')
   await page.getByRole('button', { name: 'Salvar alterações', exact: true }).click()
-  await expect(page.getByRole('alertdialog')).toContainText('Nome já cadastrado')
-  await page.getByRole('alertdialog').getByRole('button', { name: 'Entendi', exact: true }).click()
-  await expect(page.getByRole('alert')).toContainText('Nome já cadastrado')
+  await expect(page.getByRole('alert', { name: 'Não foi possível concluir' })).toContainText(
+    'Nome já cadastrado',
+  )
+  await page
+    .getByRole('alert', { name: 'Não foi possível concluir' })
+    .getByRole('button', { name: 'Fechar mensagem', exact: true })
+    .click()
+  await expect(page.getByRole('dialog').getByRole('alert')).toContainText('Nome já cadastrado')
   await page.getByLabel('Nome', { exact: true }).fill('Operações e Pessoas')
   await page.getByRole('button', { name: 'Salvar alterações', exact: true }).click()
   await fecharSucesso(page)
@@ -284,9 +292,9 @@ test('logout limpa o cookie e bloqueia o retorno a páginas protegidas', async (
   await entrar(page)
   await page.getByRole('button', { name: 'Sair da conta', exact: true }).click()
   await expect(page).toHaveURL(/\/login$/)
-  const confirmacao = page.getByRole('dialog', { name: 'Sessão encerrada', exact: true })
+  const confirmacao = page.getByRole('status', { name: 'Sessão encerrada', exact: true })
   await expect(confirmacao).toContainText('Você saiu da sua conta.')
-  await confirmacao.getByRole('button', { name: 'Entendi', exact: true }).click()
+  await confirmacao.getByRole('button', { name: 'Fechar mensagem', exact: true }).click()
   expect((await context.cookies()).some((cookie) => cookie.name === 'sirs-session')).toBe(false)
   await page.goto('/vagas')
   await expect(page).toHaveURL(/\/login/)

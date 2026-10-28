@@ -21,7 +21,9 @@ import br.com.sirs.api.model.request.RequisicaoProposta;
 import br.com.sirs.api.model.response.RespostaAvaliacaoCriterio;
 import br.com.sirs.api.model.response.RespostaCandidato;
 import br.com.sirs.api.model.response.RespostaCandidatura;
+import br.com.sirs.api.model.response.RespostaCriterioVaga;
 import br.com.sirs.api.model.response.RespostaDetalheCandidatura;
+import br.com.sirs.api.model.response.RespostaEtapaVaga;
 import br.com.sirs.api.model.response.RespostaMovimentacaoCandidatura;
 import br.com.sirs.api.model.response.RespostaPaginada;
 import br.com.sirs.api.model.response.RespostaProposta;
@@ -140,7 +142,13 @@ public class CandidaturaService {
             .map(RespostaMovimentacaoCandidatura::from)
             .toList(),
         designacoes.listar(identificador),
-        RespostaProposta.from(proposta));
+        RespostaProposta.from(proposta),
+        etapas.findByVagaIdOrderByOrdem(candidatura.getVaga().getId()).stream()
+            .map(RespostaEtapaVaga::of)
+            .toList(),
+        criterios.findByVagaIdOrderById(candidatura.getVaga().getId()).stream()
+            .map(RespostaCriterioVaga::of)
+            .toList());
   }
 
   private Candidatura buscar(Long identificador) {

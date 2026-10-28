@@ -9,4 +9,6 @@ public record RespostaDetalheCandidatura(
     List<RespostaAvaliacaoCriterio> notas,
     List<RespostaMovimentacaoCandidatura> historico,
     List<Long> avaliadores,
-    RespostaProposta proposta) {}
+    RespostaProposta proposta,
+    List<RespostaEtapaVaga> etapas,
+    List<RespostaCriterioVaga> criterios) {}

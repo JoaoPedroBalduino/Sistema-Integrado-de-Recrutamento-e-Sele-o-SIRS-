@@ -318,7 +318,12 @@ class FluxoRecrutamentoIT {
         coordenador,
         Map.of("usuarioId", avaliadorId),
         204);
-    executar(get("/api/v1/candidaturas/" + candidaturaId), avaliador, null, 200);
+    var fichaAvaliador =
+        executar(get("/api/v1/candidaturas/" + candidaturaId), avaliador, null, 200);
+    assertEquals(vaga.etapas().size(), fichaAvaliador.path("etapas").size());
+    assertEquals(vaga.criterios().size(), fichaAvaliador.path("criterios").size());
+    assertTrue(fichaAvaliador.path("proposta").isNull());
+    assertFalse(fichaAvaliador.has("apontamentos"));
     executar(
         put("/api/v1/candidaturas/" + candidaturaId + "/avaliacoes"),
         avaliador,

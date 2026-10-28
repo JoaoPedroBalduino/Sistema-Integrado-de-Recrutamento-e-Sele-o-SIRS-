@@ -1,0 +1,16 @@
+services:
+  frontend:
+    build: .
+    ports:
+      - '127.0.0.1:3000:3000'
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    environment:
+      NUXT_BACKEND_BASE_URL: ${DOCKER_BACKEND_BASE_URL:-http://host.docker.internal:8080/api/v1}
+      NUXT_APP_ORIGIN: ${NUXT_APP_ORIGIN:-http://127.0.0.1:3000}
+      NUXT_SESSION_SECRET: ${NUXT_SESSION_SECRET:?Gere a chave da sessao somente no .env privado}
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    restart: unless-stopped

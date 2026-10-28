@@ -61,3 +61,11 @@ Desktop.ini
 
 # Exportacao duplicada do prototipo; os HTML oficiais ficam em prototipo-sirs/
 SIRS - Prototipo MVP.html
+
+# Nuxt, Nitro e testes de navegador
+.nuxt/
+.output/
+.data/
+playwright-report/
+test-results/
+.blob-report/

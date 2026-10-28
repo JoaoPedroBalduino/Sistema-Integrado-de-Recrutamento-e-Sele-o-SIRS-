@@ -125,3 +125,11 @@ Os testes de navegador conferem a disposição em desktop/mobile, as logos, os c
 A identidade usa índigo e superfícies em camadas, mantendo uma única faixa de indicadores em vez de cartões repetidos. O painel lateral `SirsResumoPeriodo` apresenta os dados já retornados pela API: percentual no prazo, meta vigente, ciclo de admissão e vagas atrasadas. A ausência de vagas consideradas recebe um estado próprio, sem simular resultados.
 
 `SirsGraficoHistorico` é compartilhado entre o painel e os indicadores, com escala calculada a partir dos valores, meses identificados, linhas de referência e tabela equivalente para leitores de tela. Percentuais visuais são limitados entre 0 e 100; os valores de origem permanecem inalterados.
+
+## Modais de mensagens
+
+`useNotificacoes().adicionar(texto, tipo, tituloOpcional)` aceita `informacao`, `sucesso`, `erro` e `alerta`. Os avisos aparecem em um diálogo global (`SirsMensagem`), um de cada vez, sem expiração automática. Mensagens idênticas pendentes não são duplicadas. Os ícones são Lucide, e o conteúdo é sempre texto, sem HTML recebido da API.
+
+Os modais fecham pelo botão Entendi, pelo botão de fechar, por Escape ou pelo fundo. O foco fica contido pelo diálogo nativo e retorna à ação anterior quando ela continua disponível. Erros e alertas usam `alertdialog`, com título e descrição associados.
+
+Salvamentos, avaliações e demais notificações existentes usam o novo componente. Falhas de login, sessão expirada, erros do formulário e a explicação de permissões em Minha conta também foram integrados. Os erros de campos continuam disponíveis no formulário após fechar o aviso, sem perder os valores digitados. Se a gravação funcionar e apenas a atualização da lista falhar, o sistema informa que os dados já foram salvos.

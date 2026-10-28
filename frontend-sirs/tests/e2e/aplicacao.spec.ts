@@ -8,6 +8,12 @@ async function entrar(pagina: Page, email = 'coordenacao@exemplo.test') {
   await expect(pagina).toHaveURL(/\/$/)
   await expect(pagina.getByRole('button', { name: 'Sair da conta', exact: true })).toBeVisible()
 }
+async function fecharSucesso(pagina: Page) {
+  const mensagem = pagina.locator('.message-dialog[data-tipo="sucesso"]')
+  await expect(mensagem).toBeVisible()
+  await mensagem.getByRole('button', { name: 'Entendi', exact: true }).click()
+  await expect(mensagem).toHaveCount(0)
+}
 async function navegar(pagina: Page, titulo: string) {
   const abrir = pagina.getByRole('button', { name: 'Abrir menu' })
   if (await abrir.isVisible()) await abrir.click()
@@ -31,7 +37,8 @@ test('mostra erro de credenciais e permite tentar novamente', async ({ page }) =
   await page.getByLabel('E-mail corporativo').fill('coordenacao@exemplo.test')
   await page.getByLabel('Senha', { exact: true }).fill('senha-incorreta')
   await page.getByRole('button', { name: 'Entrar', exact: true }).click()
-  await expect(page.getByRole('alert')).toContainText('Credenciais inválidas')
+  await expect(page.getByRole('alertdialog')).toContainText('Credenciais inválidas')
+  await page.getByRole('alertdialog').getByRole('button', { name: 'Entendi', exact: true }).click()
   await expect(page.getByLabel('Senha', { exact: true })).toHaveValue('')
 })
 
@@ -84,6 +91,7 @@ test('cria vaga com referências e acompanha a estrutura', async ({ page }) => {
   await page.getByLabel('Recrutador responsável').selectOption('7')
   await page.getByLabel('Canais de divulgação').selectOption('1')
   await page.getByRole('button', { name: 'Salvar vaga', exact: true }).click()
+  await fecharSucesso(page)
   await expect(
     page.getByRole('heading', { name: 'Engenheiro de plataforma', exact: true }),
   ).toBeVisible()
@@ -91,6 +99,7 @@ test('cria vaga com referências e acompanha a estrutura', async ({ page }) => {
   await page.getByRole('button', { name: 'Adicionar etapa', exact: true }).click()
   await page.getByLabel('Nome', { exact: true }).fill('Conversa com a equipe')
   await page.getByRole('button', { name: 'Salvar alterações', exact: true }).click()
+  await fecharSucesso(page)
   await expect(page.getByText('Conversa com a equipe', { exact: true })).toBeVisible()
 })
 
@@ -100,13 +109,17 @@ test('salva cadastro, trata erro de negócio e permite edição', async ({ page 
   await page.getByRole('button', { name: 'Novo registro', exact: true }).click()
   await page.getByLabel('Nome', { exact: true }).fill('Duplicado')
   await page.getByRole('button', { name: 'Salvar alterações', exact: true }).click()
+  await expect(page.getByRole('alertdialog')).toContainText('Nome já cadastrado')
+  await page.getByRole('alertdialog').getByRole('button', { name: 'Entendi', exact: true }).click()
   await expect(page.getByRole('alert')).toContainText('Nome já cadastrado')
   await page.getByLabel('Nome', { exact: true }).fill('Operações e Pessoas')
   await page.getByRole('button', { name: 'Salvar alterações', exact: true }).click()
+  await fecharSucesso(page)
   await expect(page.getByRole('cell', { name: 'Operações e Pessoas', exact: true })).toBeVisible()
   await page.getByRole('button', { name: 'Editar Operações e Pessoas', exact: true }).click()
   await page.getByLabel('Cadastro ativo', { exact: true }).uncheck()
   await page.getByRole('button', { name: 'Salvar alterações', exact: true }).click()
+  await fecharSucesso(page)
   await expect(page.getByRole('row').filter({ hasText: 'Operações e Pessoas' })).toContainText(
     'Desativado',
   )
@@ -121,6 +134,7 @@ test('cadastra candidato com base legal e pesquisa real na API', async ({ page }
   await page.getByLabel('Base legal').selectOption('LEGITIMO_INTERESSE')
   await page.getByLabel('Data e hora da coleta').fill('2026-10-01T10:00')
   await page.getByRole('button', { name: 'Salvar alterações', exact: true }).click()
+  await fecharSucesso(page)
   await expect(page.getByRole('dialog')).toHaveCount(0)
   await expect(
     page.getByRole('link', { name: 'Talento de Verificação', exact: true }),
@@ -147,6 +161,7 @@ test('abre candidatura e registra avaliação pelos critérios corretos', async 
   await page.getByLabel('Nota para Colaboração').fill('4')
   await page.getByRole('button', { name: 'Salvar avaliação', exact: true }).click()
   await expect(page.getByText('Avaliação registrada.', { exact: true })).toBeVisible()
+  await fecharSucesso(page)
   const estado = await (await request.get('http://127.0.0.1:4100/__test__/state')).json()
   expect(
     estado.requests.find(
@@ -186,6 +201,7 @@ test('administrador cria conta sem retornar senha ao navegador', async ({ page, 
   await page.getByLabel('Senha inicial').fill('SenhaDaNovaPessoa123!')
   await page.getByLabel('Perfil de acesso').selectOption('GESTOR')
   await page.getByRole('button', { name: 'Salvar alterações', exact: true }).click()
+  await fecharSucesso(page)
   await expect(page.getByRole('cell').filter({ hasText: 'Pessoa da Equipe' })).toBeVisible()
   const usuarios = await page.request.get('/api/backend/usuarios')
   expect(usuarios.status()).toBe(200)

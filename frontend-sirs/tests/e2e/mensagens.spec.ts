@@ -1,0 +1,73 @@
+import { test, expect, type Page } from '@playwright/test'
+
+async function entrar(pagina: Page) {
+  await pagina.goto('/login')
+  await pagina.getByLabel('E-mail corporativo').fill('coordenacao@exemplo.test')
+  await pagina.getByLabel('Senha', { exact: true }).fill('SenhaTesteFrontend123!')
+  await pagina.getByRole('button', { name: 'Entrar', exact: true }).click()
+  await expect(pagina.getByRole('heading', { name: /Marina/ })).toBeVisible()
+}
+test.beforeEach(async ({ request }) => {
+  await request.post('http://127.0.0.1:4100/__test__/reset')
+})
+
+test('mostra erro de login em modal e devolve o foco após Escape', async ({ page }) => {
+  await page.goto('/login')
+  await page.getByLabel('E-mail corporativo').fill('coordenacao@exemplo.test')
+  await page.getByLabel('Senha', { exact: true }).fill('senha-incorreta')
+  await page.getByRole('button', { name: 'Entrar', exact: true }).click()
+  const mensagem = page.getByRole('alertdialog', { name: 'Não foi possível entrar', exact: true })
+  await expect(mensagem).toContainText('Credenciais inválidas')
+  await expect(mensagem.getByRole('button', { name: 'Entendi', exact: true })).toBeFocused()
+  await page.screenshot({ path: test.info().outputPath('modal-erro.png'), fullPage: true })
+  await page.keyboard.press('Escape')
+  await expect(mensagem).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'Entrar', exact: true })).toBeFocused()
+  await expect(page.getByLabel('Senha', { exact: true })).toHaveValue('')
+})
+
+test('informa a sessão expirada em um alerta acessível', async ({ page }) => {
+  await page.goto('/login?expirada=1')
+  const mensagem = page.getByRole('alertdialog', { name: 'Sessão expirada', exact: true })
+  await expect(mensagem).toContainText('Entre novamente para continuar')
+  await expect(mensagem).toHaveAttribute('aria-describedby', /.+-descricao/)
+  await page.screenshot({ path: test.info().outputPath('modal-alerta.png'), fullPage: true })
+  await mensagem.getByRole('button', { name: 'Entendi', exact: true }).click()
+  await expect(mensagem).toHaveCount(0)
+  await expect(page.getByLabel('E-mail corporativo')).toBeEditable()
+})
+
+test('explica o acesso em modal informativo e permite fechar pelo fundo', async ({ page }) => {
+  await entrar(page)
+  await page.goto('/conta')
+  const abrir = page.getByRole('button', { name: 'Entenda seu acesso', exact: true })
+  await abrir.click()
+  const mensagem = page.getByRole('dialog', { name: 'Sobre o seu acesso', exact: true })
+  await expect(mensagem).toContainText('Seu perfil define as páginas e ações disponíveis')
+  await page.screenshot({ path: test.info().outputPath('modal-informacao.png'), fullPage: true })
+  await page.keyboard.press('Escape')
+  await expect(abrir).toBeFocused()
+  await abrir.click()
+  await page.mouse.click(2, 2)
+  await expect(mensagem).toHaveCount(0)
+})
+
+test('preserva o formulário após erro e confirma o sucesso ao salvar', async ({ page }) => {
+  await entrar(page)
+  await page.goto('/cadastros')
+  await page.getByRole('button', { name: 'Novo registro', exact: true }).click()
+  await page.getByLabel('Nome', { exact: true }).fill('Duplicado')
+  await page.getByRole('button', { name: 'Salvar alterações', exact: true }).click()
+  const erro = page.getByRole('alertdialog', { name: 'Não foi possível concluir', exact: true })
+  await expect(erro).toContainText('Nome já cadastrado')
+  await erro.getByRole('button', { name: 'Entendi', exact: true }).click()
+  await expect(page.getByLabel('Nome', { exact: true })).toHaveValue('Duplicado')
+  await page.getByLabel('Nome', { exact: true }).fill('Equipe de Verificação')
+  await page.getByRole('button', { name: 'Salvar alterações', exact: true }).click()
+  const sucesso = page.getByRole('dialog', { name: 'Operação concluída', exact: true })
+  await expect(sucesso).toContainText('Informações salvas com sucesso.')
+  await page.screenshot({ path: test.info().outputPath('modal-sucesso.png'), fullPage: true })
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+  await sucesso.getByRole('button', { name: 'Fechar mensagem', exact: true }).click()
+  await expect(page.getByRole('cell', { name: 'Equipe de Verificação', exact: true })).toBeVisible()
+})

@@ -37,6 +37,9 @@ import {
   CheckCircle2,
   Eye,
   EyeOff,
+  Info,
+  CircleX,
+  TriangleAlert,
 } from '@lucide/vue'
 defineProps<{ nome: string; tamanho?: number }>()
 const icones = {
@@ -77,6 +80,9 @@ const icones = {
   success: CheckCircle2,
   eye: Eye,
   eyeOff: EyeOff,
+  info: Info,
+  error: CircleX,
+  warning: TriangleAlert,
 }
 </script>
 <template>

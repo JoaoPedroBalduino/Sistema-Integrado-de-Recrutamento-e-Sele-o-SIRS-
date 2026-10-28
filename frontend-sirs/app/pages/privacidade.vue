@@ -74,7 +74,11 @@ async function exportar(candidato: number) {
       JSON.stringify(dados, null, 2),
       'application/json',
     )
-    useNotificacoes().adicionar('Exportação preparada para o titular.')
+    useNotificacoes().adicionar(
+      'Exportação preparada para o titular.',
+      'informacao',
+      'Exportação de dados',
+    )
   } catch (falha) {
     useNotificacoes().adicionar(descreverErro(falha).mensagem, 'erro')
   }

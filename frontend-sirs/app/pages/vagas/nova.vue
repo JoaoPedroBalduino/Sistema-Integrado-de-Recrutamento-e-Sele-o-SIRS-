@@ -16,6 +16,7 @@ async function salvar(valores: ValoresFormulario) {
     await navigateTo('/vagas/' + vaga.identificador)
   } catch (falha) {
     erro.value = falha
+    useNotificacoes().adicionar(descreverErro(falha).mensagem, 'erro')
   } finally {
     salvando.value = false
   }

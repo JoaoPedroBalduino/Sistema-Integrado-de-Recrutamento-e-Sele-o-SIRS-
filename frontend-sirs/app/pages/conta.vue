@@ -5,6 +5,13 @@ useHead({ title: 'Minha conta' })
 const autenticacao = useAutenticacao()
 const salvando = ref(false)
 const erro = shallowRef<unknown>(null)
+function explicarAcesso() {
+  useNotificacoes().adicionar(
+    'Seu perfil define as páginas e ações disponíveis. Para alterar suas permissões, fale com o administrador da equipe. A troca de senha encerra as sessões abertas da sua conta.',
+    'informacao',
+    'Sobre o seu acesso',
+  )
+}
 const campos: CampoFormulario[] = [
   { chave: 'senhaAtual', rotulo: 'Senha atual', tipo: 'password', obrigatorio: true, maximo: 72 },
   {
@@ -27,6 +34,11 @@ const campos: CampoFormulario[] = [
 async function salvar(valores: ValoresFormulario) {
   if (valores.novaSenha !== valores.confirmacao) {
     erro.value = { data: { detail: 'A confirmação da nova senha não coincide.' } }
+    useNotificacoes().adicionar(
+      descreverErro(erro.value).mensagem,
+      'alerta',
+      'Confira a confirmação da senha',
+    )
     return
   }
   salvando.value = true
@@ -41,6 +53,7 @@ async function salvar(valores: ValoresFormulario) {
     await navigateTo('/login')
   } catch (falha) {
     erro.value = falha
+    useNotificacoes().adicionar(descreverErro(falha).mensagem, 'erro')
   } finally {
     salvando.value = false
   }
@@ -55,7 +68,15 @@ async function salvar(valores: ValoresFormulario) {
   <section class="panel">
     <div class="panel-header">
       <h2>Sobre o seu acesso</h2>
-      <SirsBadge :valor="autenticacao.usuario.value?.perfil || ''" />
+      <div class="row-actions">
+        <SirsBadge :valor="autenticacao.usuario.value?.perfil || ''" /><button
+          class="button secondary compact"
+          type="button"
+          @click="explicarAcesso"
+        >
+          <SirsIcone nome="info" :tamanho="15" />Entenda seu acesso
+        </button>
+      </div>
     </div>
     <div class="panel-body">
       <dl class="information-grid">

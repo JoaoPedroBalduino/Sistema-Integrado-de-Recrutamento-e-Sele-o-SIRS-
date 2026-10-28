@@ -10,6 +10,14 @@ const entrando = ref(false)
 const erro = ref('')
 const autenticacao = useAutenticacao()
 const rota = useRoute()
+onMounted(() => {
+  if (rota.query.expirada)
+    useNotificacoes().adicionar(
+      'Sua sessão expirou. Entre novamente para continuar.',
+      'alerta',
+      'Sessão expirada',
+    )
+})
 function verificarMaiusculas(evento: KeyboardEvent) {
   maiusculasAtivadas.value = evento.getModifierState('CapsLock')
 }
@@ -21,6 +29,7 @@ async function entrar() {
     await navigateTo(destinoInterno(rota.query.destino))
   } catch (falha) {
     erro.value = descreverErro(falha).mensagem
+    useNotificacoes().adicionar(erro.value, 'erro', 'Não foi possível entrar')
   } finally {
     entrando.value = false
     senha.value = ''
@@ -92,7 +101,7 @@ async function entrar() {
             >
               <SirsIcone nome="alert" :tamanho="14" />Caps Lock ativado
             </p>
-            <button class="button primary login-submit" :disabled="entrando">
+            <button type="submit" class="button primary login-submit" :disabled="entrando">
               <SirsIcone v-if="entrando" nome="loading" class="spin" :tamanho="18" />{{
                 entrando ? 'Entrando…' : 'Entrar'
               }}<SirsIcone v-if="!entrando" nome="next" :tamanho="18" />

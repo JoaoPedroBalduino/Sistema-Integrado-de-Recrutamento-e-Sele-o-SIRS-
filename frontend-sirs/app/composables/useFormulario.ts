@@ -20,13 +20,23 @@ export function useFormulario(
     erroFormulario.value = null
     try {
       await operacao(valores)
-      aberto.value = false
-      useNotificacoes().adicionar('Informações salvas com sucesso.')
-      await atualizar?.()
     } catch (erro) {
       erroFormulario.value = erro
+      useNotificacoes().adicionar(descreverErro(erro).mensagem, 'erro')
+      return
     } finally {
       salvando.value = false
+    }
+    aberto.value = false
+    try {
+      await atualizar?.()
+      useNotificacoes().adicionar('Informações salvas com sucesso.')
+    } catch {
+      useNotificacoes().adicionar(
+        'As informações foram salvas, mas a lista não foi atualizada. Recarregue a página para consultar os dados mais recentes.',
+        'alerta',
+        'Dados salvos; atualização pendente',
+      )
     }
   }
   return { aberto, salvando, erroFormulario, inicial, abrir, fechar, salvar }

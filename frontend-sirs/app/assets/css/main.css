@@ -746,35 +746,6 @@ textarea {
 .modal-content {
   padding: 25px;
 }
-.toast-stack {
-  position: fixed;
-  right: 22px;
-  bottom: 22px;
-  z-index: 100;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.toast {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: #fff;
-  border: 1px solid #dfe9e1;
-  box-shadow: 0 6px 35px #14283217;
-  border-radius: 10px;
-  padding: 12px 15px;
-  color: #3b8c66;
-  font-size: 12px;
-  max-width: 440px;
-}
-.toast.erro {
-  color: #b84e61;
-  border-color: #ffe0e3;
-}
-.toast span {
-  flex: 1;
-}
 .command-results {
   margin-top: 16px;
 }
@@ -1025,14 +996,6 @@ textarea {
   }
   .period-inputs input {
     width: 140px;
-  }
-  .toast-stack {
-    left: 14px;
-    right: 14px;
-    bottom: 14px;
-  }
-  .toast {
-    max-width: none;
   }
   .panel {
     margin-bottom: 18px;

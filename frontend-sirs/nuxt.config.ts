@@ -10,7 +10,6 @@ export default defineNuxtConfig({
   app: {
     head: {
       htmlAttrs: { lang: 'pt-BR' },
-      titleTemplate: '%s | SIRS',
       meta: [
         {
           name: 'description',

@@ -6,7 +6,7 @@ test.beforeEach(async ({ request }) => {
 
 test('apresenta a logo original no login e carrega o favicon', async ({ page, request }) => {
   await page.goto('/login')
-  await expect(page).toHaveTitle('Entrar | SIRS')
+  await expect(page).toHaveTitle('Entrar')
   await expect(page.locator('meta[name="description"]')).toHaveAttribute(
     'content',
     'Sistema Integrado de Recrutamento e Seleção. Pessoas, processos e decisões em um só lugar.',
@@ -39,7 +39,7 @@ test('mantém a marca visível e proporcional no menu', async ({ page }) => {
   await confirmacao.getByRole('button', { name: 'Fechar mensagem', exact: true }).click()
 
   await expect(page.getByRole('button', { name: 'Sair da conta', exact: true })).toBeVisible()
-  await expect(page).toHaveTitle('Visão geral | SIRS')
+  await expect(page).toHaveTitle('Visão geral')
   const abrir = page.getByRole('button', { name: 'Abrir menu' })
   if (await abrir.isVisible()) await abrir.click()
   const marca = page.getByRole('img', { name: 'SIRS · Recrutamento e seleção', exact: true })

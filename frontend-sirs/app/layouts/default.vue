@@ -2,6 +2,7 @@
 import { navegacao } from '~/utils/permissoes'
 import { nomesPerfis, iniciais } from '~/utils/formatacao'
 const autenticacao = useAutenticacao()
+const notificacoes = useNotificacoes()
 const menuAberto = ref(false)
 const buscaAberta = ref(false)
 const busca = ref('')
@@ -29,8 +30,9 @@ watch(
 async function sair() {
   try {
     await autenticacao.sair()
+    notificacoes.adicionar('Você saiu da sua conta.', 'sucesso', 'Sessão encerrada')
   } catch {
-    useNotificacoes().adicionar(
+    notificacoes.adicionar(
       'A sessão local foi encerrada. O serviço de autenticação está indisponível.',
       'erro',
     )

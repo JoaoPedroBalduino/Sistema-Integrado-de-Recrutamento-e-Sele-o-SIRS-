@@ -9,10 +9,11 @@ const maiusculasAtivadas = ref(false)
 const entrando = ref(false)
 const erro = ref('')
 const autenticacao = useAutenticacao()
+const notificacoes = useNotificacoes()
 const rota = useRoute()
 onMounted(() => {
   if (rota.query.expirada)
-    useNotificacoes().adicionar(
+    notificacoes.adicionar(
       'Sua sessão expirou. Entre novamente para continuar.',
       'alerta',
       'Sessão expirada',
@@ -27,9 +28,10 @@ async function entrar() {
   try {
     await autenticacao.entrar(email.value, senha.value)
     await navigateTo(destinoInterno(rota.query.destino))
+    notificacoes.adicionar('Você entrou na sua conta com sucesso.', 'sucesso', 'Login realizado')
   } catch (falha) {
     erro.value = descreverErro(falha).mensagem
-    useNotificacoes().adicionar(erro.value, 'erro', 'Não foi possível entrar')
+    notificacoes.adicionar(erro.value, 'erro', 'Não foi possível entrar')
   } finally {
     entrando.value = false
     senha.value = ''

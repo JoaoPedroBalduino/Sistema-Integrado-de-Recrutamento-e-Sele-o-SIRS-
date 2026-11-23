@@ -12,32 +12,39 @@ const autenticacao = useAutenticacao()
 const consulta = useApiSirs()
 const hoje = dataHoje()
 const inicio = hoje.slice(0, 4) + '-01-01'
+const periodo = { de: inicio, ate: hoje }
 const {
   data: dados,
   status,
   error,
   refresh,
-} = await useAsyncData('painel-inicial', async () => {
+} = useLazyAsyncData('painel-inicial', async () => {
   if (autenticacao.usuario.value?.perfil === 'AVALIADOR') return null
-  const [vagas, publicadas, aprovacao, resumo, historico] = await Promise.all([
+  const [vagas, publicadas, aprovacao, resumo, candidaturas] = await Promise.all([
     consulta<RespostaPaginada<RespostaVaga>>('vagas', { query: { size: 5, sort: 'id,desc' } }),
     consulta<RespostaPaginada<RespostaVaga>>('vagas', { query: { size: 1, status: 'PUBLICADA' } }),
     consulta<RespostaPaginada<RespostaVaga>>('vagas', {
       query: { size: 1, status: 'EM_APROVACAO' },
     }),
-    consulta<RespostaResumoIndicadores>('indicadores/resumo', { query: { de: inicio, ate: hoje } }),
-    consulta<RespostaResumoIndicadores[]>('indicadores/historico', {
-      query: { de: inicio, ate: hoje },
-    }),
-  ])
-  const candidaturas =
+    consulta<RespostaResumoIndicadores>('indicadores/resumo', { query: periodo }),
     autenticacao.usuario.value?.perfil === 'DIRETORIA'
       ? null
-      : await consulta<RespostaPaginada<RespostaCandidatura>>('candidaturas', {
+      : consulta<RespostaPaginada<RespostaCandidatura>>('candidaturas', {
           query: { size: 4, sort: 'id,desc' },
-        })
-  return { vagas, publicadas, aprovacao, resumo, historico, candidaturas }
+        }),
+  ])
+  return { vagas, publicadas, aprovacao, resumo, candidaturas }
 })
+const {
+  data: historico,
+  status: statusHistorico,
+  error: erroHistorico,
+  refresh: atualizarHistorico,
+} = useLazyAsyncData(
+  'painel-inicial-historico',
+  () => consulta<RespostaResumoIndicadores[]>('indicadores/historico', { query: periodo }),
+  { server: false, immediate: autenticacao.usuario.value?.perfil !== 'AVALIADOR' },
+)
 const primeiroNome = computed(() => autenticacao.usuario.value?.nome.split(' ')[0] || '')
 const colunas = [
   { chave: 'titulo', titulo: 'Vaga / departamento' },
@@ -154,10 +161,17 @@ const colunas = [
               <span class="period-label">Ano {{ hoje.slice(0, 4) }}</span>
             </div>
             <div class="panel-body">
-              <SirsGraficoHistorico
-                :periodos="dados.historico"
-                titulo="Vagas fechadas em cada mês do ano"
-              />
+              <SirsEstado
+                :carregando="statusHistorico === 'idle' || statusHistorico === 'pending'"
+                :erro="erroHistorico"
+                @tentar="atualizarHistorico"
+              >
+                <SirsGraficoHistorico
+                  v-if="historico"
+                  :periodos="historico"
+                  titulo="Vagas fechadas em cada mês do ano"
+                />
+              </SirsEstado>
             </div>
           </section>
         </div>

@@ -262,6 +262,46 @@ test('cookie adulterado volta ao login', async ({ page, context }) => {
   await expect(page).toHaveURL(/\/login/)
 })
 
+test('mostra os painéis enquanto o histórico carrega e consulta somente a aba aberta', async ({
+  page,
+}) => {
+  const historicoSolicitado = Promise.withResolvers<void>()
+  const liberarHistorico = Promise.withResolvers<void>()
+  await page.route('**/api/backend/indicadores/historico?*', async (route) => {
+    historicoSolicitado.resolve()
+    await liberarHistorico.promise
+    await route.continue()
+  })
+  const recortes: string[] = []
+  page.on('request', (request) => {
+    const caminho = new URL(request.url()).pathname
+    if (/\/api\/backend\/indicadores\/(cargos|recrutadores|canais)$/.test(caminho))
+      recortes.push(caminho.split('/').at(-1)!)
+  })
+  try {
+    await entrar(page)
+    await historicoSolicitado.promise
+    await expect(page.getByText('Vagas publicadas', { exact: true })).toBeVisible()
+    await expect(page.getByText('Carregando informações…', { exact: true })).toBeVisible()
+
+    await navegar(page, 'Indicadores')
+    await expect(page.getByText('Vagas fechadas', { exact: true })).toBeVisible()
+    await expect(page.getByRole('table', { name: 'Indicadores por cargo' })).toBeVisible()
+    expect(recortes).toEqual(['cargos'])
+    await expect(page.getByRole('button', { name: 'Exportar histórico' })).toBeDisabled()
+
+    await page.getByRole('button', { name: 'Por recrutador' }).click()
+    await expect(page.getByRole('table', { name: 'Indicadores por recrutador' })).toBeVisible()
+    expect(recortes).toEqual(['cargos', 'recrutadores'])
+  } finally {
+    liberarHistorico.resolve()
+  }
+  await expect(
+    page.getByRole('img', { name: 'Quantidade de vagas concluídas por mês' }),
+  ).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Exportar histórico' })).toBeEnabled()
+})
+
 test('exporta indicadores e mostra custos calculados pela API', async ({ page }) => {
   await entrar(page)
   await navegar(page, 'Indicadores')
